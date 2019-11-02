@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 
-class User {
-  final String name;
+class Program {
+  String name;
 
-  User({
+  Program({
     @required this.name
   });
+
 }

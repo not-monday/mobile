@@ -6,14 +6,11 @@ import 'package:stronk/redux/state/app_state.dart';
 
 import 'profile_vm.dart';
 
-class HomePage extends StatelessWidget {
+class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => StoreConnector<AppState, ProfileVM> (
     converter: (Store<AppState> store) => ProfileVM.create(store),
-    builder: (BuildContext context, ProfileVM homeVM) => Scaffold(
-      appBar: AppBar(
-        title: Text(homeVM.user.name),
-      )
+    builder: (BuildContext context, ProfileVM profileVM) => Scaffold(
     ),
   );
 }

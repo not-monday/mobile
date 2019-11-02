@@ -10,10 +10,8 @@ class SearchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => StoreConnector<AppState, SearchVM> (
     converter: (Store<AppState> store) => SearchVM.create(store),
-    builder: (BuildContext context, SearchVM homeVM) => Scaffold(
-      appBar: AppBar(
-        title: Text(homeVM.user.name),
-      )
+    builder: (BuildContext context, SearchVM searchVM) => Scaffold(
+
     ),
   );
 }
