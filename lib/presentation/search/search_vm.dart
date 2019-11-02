@@ -2,14 +2,14 @@ import 'package:redux/redux.dart';
 import 'package:stronk/domain/model/user.dart';
 import 'package:stronk/redux/state/app_state.dart';
 
-class HomeVM {
+class SearchVM {
 
   final User user;
 
-  HomeVM(this.user);
+  SearchVM(this.user);
 
-  factory HomeVM.create(Store<AppState> store) {
-    return HomeVM(store.state.user);
+  factory SearchVM.create(Store<AppState> store) {
+    return SearchVM(store.state.user);
   }
 }
 
