@@ -3,24 +3,34 @@ import 'package:stronk/domain/model/user.dart';
 import 'package:stronk/redux/state/app_state.dart';
 
 AppState appReducer(AppState state, dynamic action) {
-  return new AppState(
-    user : null,
-    nav : state.nav,
-    currentProgram: null,
+  // todo extract into different reducers
+  print(state.user);
+  print(state.currentProgram);
+  return AppState(
+      user: userReducer(state.user, action),
+      currentProgram: programReducer(state.currentProgram, action)
   );
 }
 
-Navigation navigationReducer(nav, action) {
-  return action.selected;
+User userReducer(User user, dynamic action) {
+  if (action is UserRetrievedAction) {
+//    print(action.retrievedUser);
+    return action.retrievedUser;
+  } else {
+    return user;
+  }
+}
+
+Program programReducer(Program program, dynamic action) {
+  if (action is ProgramRetrievedAction) {
+//    print(action.retrievedProgram);
+    return action.retrievedProgram;
+  } else {
+    return program;
+  }
 }
 
 // region app actions
-
-class ChangeNavigationItemAction {
-  final Navigation selected;
-
-  ChangeNavigationItemAction(this.selected);
-}
 
 class UpdateCurrentUserAction {}
 

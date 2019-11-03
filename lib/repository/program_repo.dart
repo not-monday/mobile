@@ -1,8 +1,8 @@
 import 'package:stronk/domain/model/program.dart';
 
 class ProgramRepository {
-  Future<Program> retrieveProgram() {
+  Future<Program> retrieveProgram() async {
     // todo replace with real program fetch call
-    return Future.value(Program(name: "Test program"));
+    return Program(name: "Test program");
   }
 }

@@ -6,5 +6,4 @@ class Program {
   Program({
     @required this.name
   });
-
 }

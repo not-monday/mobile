@@ -1,27 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
+import 'package:redux_thunk/redux_thunk.dart';
 import 'package:stronk/presentation/stronk_home/stronk_home_container.dart';
+import 'package:stronk/redux/middleware/logging_middleware.dart';
+import 'package:stronk/redux/middleware/request_middleware.dart';
 import 'package:stronk/redux/reducer/app_reducer.dart';
 import 'package:stronk/redux/state/app_state.dart';
+import 'package:stronk/repository/program_repo.dart';
+import 'package:stronk/repository/user_repo.dart';
 
 void main() => runApp(MyApp());
-
-List<Middleware<AppState>> createStoreMiddleWare() {
-  return const[];
-}
 
 class MyApp extends StatelessWidget {
 
   final Store<AppState> store = Store<AppState>(
     appReducer,
     initialState :AppState.initial(),
-    middleware: createStoreMiddleWare()
+    middleware: [
+      RequestMiddleware(new UserRepo(), new ProgramRepository()),
+      LoggingMiddleware(),
+    ]
   );
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // initialize action to retrieve the user and their current program
+    store.dispatch(RetrieveUserAction());
+    store.dispatch(RetrieveProgramAction());
+
     return StoreProvider(
       store: store,
       child: MaterialApp(
