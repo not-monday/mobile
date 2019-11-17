@@ -10,7 +10,7 @@ class AppState {
 
   AppState({
     @required this.user,
-    @required this.currentProgram
+    @required this.currentProgram,
   });
 
   factory AppState.initial() => AppState(

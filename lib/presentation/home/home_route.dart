@@ -6,11 +6,12 @@ import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/presentation/component/greeting_card.dart';
 import 'package:stronk/presentation/component/program_card.dart';
 import 'package:stronk/presentation/component/workout_pageview.dart';
+import 'package:stronk/presentation/workout/workout_route.dart';
 import 'package:stronk/redux/state/app_state.dart';
 
 import 'home_vm.dart';
 
-class HomePage extends StatelessWidget {
+class HomeRoute extends StatelessWidget {
   @override
   Widget build(BuildContext context) => StoreConnector<AppState, HomeVM> (
     converter: (Store<AppState> store) => HomeVM.create(store),
@@ -25,8 +26,12 @@ class HomePage extends StatelessWidget {
                 children: <Widget>[
                   GreetingCard(),
                   WorkoutPageView(
-                    workouts: [Workout(), Workout(), Workout(), Workout(), Workout()],
+                    workouts: [Workout(id : "1"), Workout(id : "1"), Workout(id : "1"), Workout(id : "1"), Workout(id : "1")],
                     currentWorkout: 0,
+                    // TODO don't use direct navigation
+                    viewProgram: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WorkoutRoute())),
+                    viewWorkout: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WorkoutRoute())),
+                    viewExercise: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WorkoutRoute())),
                   ),
                 ],
               ),

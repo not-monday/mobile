@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import 'package:redux_thunk/redux_thunk.dart';
 import 'package:stronk/presentation/stronk_home/stronk_home_container.dart';
+import 'package:stronk/presentation/workout/workout_route.dart';
 import 'package:stronk/redux/middleware/logging_middleware.dart';
+import 'package:stronk/redux/middleware/navigation_middleware.dart';
 import 'package:stronk/redux/middleware/request_middleware.dart';
 import 'package:stronk/redux/reducer/app_reducer.dart';
 import 'package:stronk/redux/state/app_state.dart';
 import 'package:stronk/repository/program_repo.dart';
 import 'package:stronk/repository/user_repo.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-
   final Store<AppState> store = Store<AppState>(
     appReducer,
     initialState :AppState.initial(),
     middleware: [
-      RequestMiddleware(new UserRepo(), new ProgramRepository()),
       LoggingMiddleware(),
+      RequestMiddleware(UserRepo(), ProgramRepository()),
+      NavigationMiddleware(navigatorKey : navigatorKey),
     ]
   );
 
@@ -46,7 +48,11 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        home: StronkHomePage(),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => StronkHomePage(),
+          '/workout': (context) => WorkoutRoute(),
+        }
       )
     );
   }

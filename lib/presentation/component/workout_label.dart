@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class WorkoutLabel extends StatelessWidget {
-
-  String workout;
-  int sets;
-  int reps;
+  final String workout;
+  final int sets;
+  final int reps;
 
   WorkoutLabel({
     @required this.workout,

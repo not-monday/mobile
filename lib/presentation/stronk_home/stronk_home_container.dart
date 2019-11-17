@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import 'package:stronk/presentation/home/home_page.dart';
+import 'package:stronk/presentation/home/home_route.dart';
 import 'package:stronk/presentation/profile/profile_page.dart';
 import 'package:stronk/presentation/search/search_page.dart';
 import 'package:stronk/presentation/stronk_home/stronk_home_vm.dart';
@@ -17,7 +17,7 @@ class StronkHomePage extends StatefulWidget {
 
 class _StronkHomePage extends State<StronkHomePage> {
   int _selectedIndex = 0;
-  List<Widget> navPages = [HomePage(), SearchPage(), ProfilePage()];
+  List<Widget> navPages = [HomeRoute(), SearchPage(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) => StoreConnector<AppState, StronkHomeVM>(
