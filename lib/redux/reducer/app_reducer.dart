@@ -1,5 +1,6 @@
 import 'package:stronk/domain/model/program.dart';
 import 'package:stronk/domain/model/user.dart';
+import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/redux/state/app_state.dart';
 
 AppState appReducer(AppState state, dynamic action) {
@@ -8,13 +9,12 @@ AppState appReducer(AppState state, dynamic action) {
   print(state.currentProgram);
   return AppState(
       user: userReducer(state.user, action),
-      currentProgram: programReducer(state.currentProgram, action)
+      currentProgram: programReducer(state.currentProgram, action),
   );
 }
 
 User userReducer(User user, dynamic action) {
   if (action is UserRetrievedAction) {
-//    print(action.retrievedUser);
     return action.retrievedUser;
   } else {
     return user;
@@ -23,9 +23,9 @@ User userReducer(User user, dynamic action) {
 
 Program programReducer(Program program, dynamic action) {
   if (action is ProgramRetrievedAction) {
-//    print(action.retrievedProgram);
     return action.retrievedProgram;
-  } else {
+  }
+  else {
     return program;
   }
 }
@@ -46,5 +46,12 @@ class RetrieveUserAction {}
 class UserRetrievedAction {
   User retrievedUser;
   UserRetrievedAction(this.retrievedUser);
+}
+
+class RetrieveWorkoutAction {}
+
+class WorkoutRetrievedAction {
+  Workout retrievedWorkout;
+  WorkoutRetrievedAction(this.retrievedWorkout);
 }
 // endregion app actions

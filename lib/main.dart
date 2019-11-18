@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:stronk/presentation/stronk_home/stronk_home_container.dart';
-import 'package:stronk/presentation/workout/workout_route.dart';
+import 'package:stronk/presentation/workout/workout_page.dart';
 import 'package:stronk/redux/middleware/logging_middleware.dart';
 import 'package:stronk/redux/middleware/navigation_middleware.dart';
 import 'package:stronk/redux/middleware/request_middleware.dart';
@@ -13,6 +14,8 @@ import 'package:stronk/repository/user_repo.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() => runApp(MyApp());
+
+final ProgramRepository programRepo = ProgramRepository();
 
 class MyApp extends StatelessWidget {
   final Store<AppState> store = Store<AppState>(
@@ -33,27 +36,34 @@ class MyApp extends StatelessWidget {
     store.dispatch(RetrieveProgramAction());
 
     return StoreProvider(
-      store: store,
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or simply save your changes to "hot reload" in a Flutter IDE).
-          // Notice that the counter didn't reset back to zero; the application
-          // is not restarted.
-          primarySwatch: Colors.blue,
-        ),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => StronkHomePage(),
-          '/workout': (context) => WorkoutRoute(),
-        }
-      )
+        store: store,
+        child: MultiRepositoryProvider(
+          providers: <RepositoryProvider>[
+            RepositoryProvider<ProgramRepository>(
+              builder : (context) => ProgramRepository()
+            ),
+          ],
+          child: MaterialApp(
+            title: 'Flutter Demo',
+            theme: ThemeData(
+              // This is the theme of your application.
+              //
+              // Try running your application with "flutter run". You'll see the
+              // application has a blue toolbar. Then, without quitting the app, try
+              // changing the primarySwatch below to Colors.green and then invoke
+              // "hot reload" (press "r" in the console where you ran "flutter run",
+              // or simply save your changes to "hot reload" in a Flutter IDE).
+              // Notice that the counter didn't reset back to zero; the application
+              // is not restarted.
+              primarySwatch: Colors.blue,
+            ),
+            initialRoute: '/',
+            routes: {
+              '/': (context) => StronkHomePage(),
+              '/workout': (context) => WorkoutPage(),
+            }
+          )
+        )
     );
   }
 }
