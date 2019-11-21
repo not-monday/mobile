@@ -1,17 +1,13 @@
-import 'package:flutter/cupertino.dart';
-import 'package:redux/redux.dart';
-import 'package:stronk/domain/model/exercise.dart';
-import 'package:stronk/domain/model/workout.dart';
-import 'package:stronk/redux/state/app_state.dart';
-import 'package:bloc/bloc.dart';
 import 'dart:async';
 
+import 'package:bloc/bloc.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/repository/program_repo.dart';
 
 enum WorkoutEvent {
   Init
 }
-//class workoutActions extends WorkoutAction {}
 
 class WorkoutState {
   final Workout workout;
@@ -30,19 +26,6 @@ class WorkoutVM extends Bloc<WorkoutEvent, WorkoutState>{
     add(WorkoutEvent.Init);
   }
 
-  factory WorkoutVM.create(Store<AppState> store) {
-    // TODO find the current workout
-    final exercises = [Exercise(id: "test"), Exercise(id: "test"), Exercise(id: "test")];
-    final workout = Workout(id: "test", exercises: exercises);
-    // TODO convert this to di
-    final programRepo = ProgramRepository();
-
-    return WorkoutVM(
-        workout: workout,
-        programRepo : programRepo,
-    );
-  }
-
   @override
   // TODO: implement initialState
   WorkoutState get initialState => WorkoutState(workout);
@@ -57,4 +40,4 @@ class WorkoutVM extends Bloc<WorkoutEvent, WorkoutState>{
     }
   }
 
-}
+}   

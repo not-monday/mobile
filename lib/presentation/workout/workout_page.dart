@@ -16,7 +16,19 @@ class WorkoutPage extends StatelessWidget {
     child : BlocBuilder<WorkoutVM, WorkoutState>(
       builder: (context, workoutState) => Scaffold(
         body: Center(
-          child: renderContent(workoutState)
+          child: Column(
+            children: <Widget>[
+//              Container(
+//                margin: EdgeInsets.only(bottom: 10),
+//                padding: EdgeInsets.symmetric(vertical: 10),
+//                child: ,
+//                color: Colors.red[300],
+//              ),
+              Expanded(
+                child: renderContent(workoutState)
+              )
+            ],
+          )
         )
       ),
     ),
@@ -27,15 +39,16 @@ class WorkoutPage extends StatelessWidget {
       return Container();
     }
     else {
-      if (workoutState.workout.exercises.isEmpty) {
+      if (workoutState.workout.workoutExercises.isEmpty) {
         return InkWell(
           child: Text("This workout doesn't have any exercises! Would you like to add some?"),
         );
       } else {
-        return Column(
-            children : workoutState.workout.exercises.map<ExerciseCard>((exercise) =>
+        return ListView(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            children : workoutState.workout.workoutExercises.map<ExerciseCard>((workoutExercise) =>
                 ExerciseCard(
-                  exercise: exercise,
+                  workoutExercise: workoutExercise,
                 )
             ).toList()
         );

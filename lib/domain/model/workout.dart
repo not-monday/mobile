@@ -1,24 +1,23 @@
 import 'package:flutter/cupertino.dart';
-import 'package:stronk/domain/model/exercise.dart';
 
 class Workout {
   String id;
   String name;
   String description;
-  List<Exercise> exercises;
+  List<WorkoutExercise> workoutExercises;
 
   Workout({
     @required this.id,
     this.name = "test",
-    this.exercises = const [],
+    this.workoutExercises = const [],
     this.description = "test description"
   });
-
 }
 
 class WorkoutExercise {
   final String id;  // id uniquely identifies the exercise with context to this workout
   final String exerciseId;  // refers to the global exercise id
+  final Workout workout;
   final List<WorkoutExercise> supersets; // exercises being superset with this one
 
   List<ExerciseSet> exerciseSets; // each set of the exercise
@@ -26,6 +25,7 @@ class WorkoutExercise {
   WorkoutExercise({
     @required this.id,
     @required this.exerciseId,
+    @required this.workout,
     this.exerciseSets = const [],
     this.supersets = const[],
   });

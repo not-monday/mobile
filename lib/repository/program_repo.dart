@@ -9,6 +9,33 @@ class ProgramRepository {
 
   Future<Workout> retrieveWorkout() async {
     // todo replace with real program fetch call
-    return Workout(name: "Test program", id: "test");
+    final testWorkout = Workout(id: "test");
+    final testWorkoutExercise = WorkoutExercise(id: "test", exerciseId: "test", workout: testWorkout);
+
+    final workoutExercises = [
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise,
+      testWorkoutExercise
+    ];
+    return Workout(
+        name: "Test program",
+        id: "test",
+        workoutExercises: workoutExercises
+    );
   }
 }
