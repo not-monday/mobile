@@ -21,8 +21,11 @@ class WorkoutVM extends Bloc<WorkoutEvent, WorkoutState>{
 
   WorkoutVM({
     @required this.workout,
-    @required this.programRepo,
+    @required this.programRepo
   }) {
+
+    // if active screen, initialize the
+
     add(WorkoutEvent.Init);
   }
 

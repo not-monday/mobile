@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:stronk/presentation/stronk_home/stronk_home_container.dart';
-import 'package:stronk/presentation/workout/workout_page.dart';
+import 'package:stronk/presentation/workout/active_workout_page.dart';
 import 'package:stronk/redux/middleware/logging_middleware.dart';
 import 'package:stronk/redux/middleware/navigation_middleware.dart';
 import 'package:stronk/redux/middleware/request_middleware.dart';
@@ -60,7 +60,8 @@ class MyApp extends StatelessWidget {
             initialRoute: '/',
             routes: {
               '/': (context) => StronkHomePage(),
-              '/workout': (context) => WorkoutPage(),
+//              '/workout': (context) => WorkoutPage(),
+              '/workout': (context) => ActiveWorkoutPage(),
             }
           )
         )

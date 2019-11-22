@@ -3,7 +3,6 @@ import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/presentation/component/dot.dart';
 import 'package:stronk/presentation/component/workout_card.dart';
 
-
 class WorkoutPageView extends StatefulWidget {
   final List<Workout> workouts;
   final int currentWorkout;

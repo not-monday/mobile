@@ -6,7 +6,7 @@ import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/presentation/component/greeting_card.dart';
 import 'package:stronk/presentation/component/program_card.dart';
 import 'package:stronk/presentation/component/workout_pageview.dart';
-import 'package:stronk/presentation/workout/workout_page.dart';
+import 'package:stronk/presentation/workout/active_workout_page.dart';
 import 'package:stronk/redux/state/app_state.dart';
 
 import 'home_vm.dart';
@@ -29,9 +29,9 @@ class HomeRoute extends StatelessWidget {
                     workouts: [Workout(id : "1"), Workout(id : "1"), Workout(id : "1"), Workout(id : "1"), Workout(id : "1")],
                     currentWorkout: 0,
                     // TODO don't use direct navigation
-                    viewProgram: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WorkoutPage())),
-                    viewWorkout: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WorkoutPage())),
-                    viewExercise: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WorkoutPage())),
+                    viewProgram: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveWorkoutPage())),
+                    viewWorkout: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveWorkoutPage())),
+                    viewExercise: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ActiveWorkoutPage())),
                   ),
                 ],
               ),
