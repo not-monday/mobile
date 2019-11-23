@@ -12,13 +12,10 @@ class WorkoutClock extends StatefulWidget {
 }
 
 class _WorkoutClockState extends State<WorkoutClock> {
-  int passedTime;
+  int passedTime = 0;
 
   @override
   void initState() {
-    setState(() {
-      passedTime = 0;
-    });
 
     Timer.periodic(Duration(seconds: 1), (Timer t) => {
       // update the number of seconds that have passed
@@ -26,6 +23,7 @@ class _WorkoutClockState extends State<WorkoutClock> {
         passedTime += 1;
       })
     });
+
     super.initState();
   }
 
@@ -33,8 +31,8 @@ class _WorkoutClockState extends State<WorkoutClock> {
   @override
   Widget build(BuildContext context) {
     final seconds = passedTime%60;
-    final minutes = passedTime/60.toInt()%60;
-    final hours = passedTime/60/60.toInt()%24;
+    final minutes = passedTime~/60%60;
+    final hours = passedTime/60~/60%24;
 
     return Text(hours.toString() + ":" + minutes.toString() + ":" + seconds.toString());
   }
