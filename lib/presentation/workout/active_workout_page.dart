@@ -5,6 +5,8 @@ import 'package:stronk/presentation/component/exercise_card.dart';
 import 'package:stronk/presentation/workout/active_workout_vm.dart';
 import 'package:stronk/repository/program_repo.dart';
 
+import 'component/workout_clock.dart';
+
 class ActiveWorkoutPage extends StatelessWidget {
 
   @override
@@ -37,7 +39,7 @@ class ActiveWorkoutPage extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 10),
         child: Column(
           children: <Widget>[
-            Text("1:34"),
+            WorkoutClock(),
             Dismissible(
               key: UniqueKey(),
               child : ExerciseCard(workoutExercise: workoutState.currentExercise, isActive: true,),
