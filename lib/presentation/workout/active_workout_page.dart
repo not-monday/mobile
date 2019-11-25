@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stronk/presentation/component/exercise_card.dart';
 import 'package:stronk/presentation/workout/active_workout_vm.dart';
+import 'package:stronk/presentation/workout/component/workout_completed_card.dart';
 import 'package:stronk/repository/program_repo.dart';
 
 import 'component/workout_clock.dart';
@@ -19,13 +20,11 @@ class ActiveWorkoutPage extends StatelessWidget {
           body: Center(
               child: Column(
                 children: <Widget>[
-                  renderCurrentExercise(
+                  _renderCurrentExercise(
                     BlocProvider.of<ActiveWorkoutVM>(context),
                     workoutState,
                   ),
-                  Expanded(
-                      child: renderExercises(workoutState)
-                  )
+                  _renderExercises(workoutState)
                 ],
               )
           )
@@ -33,53 +32,60 @@ class ActiveWorkoutPage extends StatelessWidget {
     ),
   );
 
-  Widget renderCurrentExercise(ActiveWorkoutVM vm, ActiveWorkoutState workoutState) {
-    if (workoutState.currentExercise != null) {
-      return Container(
-        padding: EdgeInsets.symmetric(vertical: 10),
-        child: Column(
-          children: <Widget>[
-            WorkoutClock(),
-            Dismissible(
-              key: UniqueKey(),
-              child : ExerciseCard(workoutExercise: workoutState.currentExercise, isActive: true,),
-              onDismissed: (direction) => {
-                // left swipe
-                if (direction == DismissDirection.endToStart) {
-                  vm.add(ActiveWorkoutEvent.FailedWorkoutExercise)
-                }
-                // right swipe
-                else if (direction == DismissDirection.startToEnd) {
-                  vm.add(ActiveWorkoutEvent.CompleteWorkoutExercise)
-                }
-              },
-            ),
-          ],
-        ),
-        color: Colors.red[300],
-      );
-    } else {
-      return Container();
-    }
+  Widget _renderCurrentExercise(ActiveWorkoutVM vm, ActiveWorkoutState workoutState) {
+    final completedExerciseCount = workoutState.completedExercises.length;
+    final remainingExerciseCount = workoutState.remainingExercises.length;
+    final totalExerciseCount = completedExerciseCount + remainingExerciseCount + ((workoutState.currentExercise != null) ? 1 : 0);
+
+    final exerciseCard = (workoutState.currentExercise == null)
+        ? Container()
+        : Dismissible(
+            key: UniqueKey(),
+            child : ExerciseCard(workoutExercise: workoutState.currentExercise, isActive: true,),
+            onDismissed: (direction) => {
+              // left swipe
+              if (direction == DismissDirection.endToStart) {
+                vm.add(ActiveWorkoutEvent.FailedWorkoutExercise)
+              }
+              // right swipe
+              else if (direction == DismissDirection.startToEnd) {
+                vm.add(ActiveWorkoutEvent.CompleteWorkoutExercise)
+              }
+            },
+          );
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        children: <Widget>[
+          WorkoutClock(),
+          exerciseCard,
+          Text("Completed " + completedExerciseCount.toString() + "/" + totalExerciseCount.toString() + " exercises ")
+        ],
+      ),
+      color: Colors.red[300],
+    );
   }
 
-  Widget renderExercises(ActiveWorkoutState workoutState) {
+  Widget _renderExercises(ActiveWorkoutState workoutState) {
     if (workoutState.loading == true) {
       return Container();
     }
     else {
-      if (workoutState.remainingExercises.isEmpty) {
+      if (workoutState.currentExercise == null) {
         return InkWell(
-          child: Text("That's it! You're done for today :)"),
+          child: WorkoutCompletedCard()
         );
       } else {
-        return ListView(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            children : workoutState.remainingExercises.map<ExerciseCard>((workoutExercise) =>
-                ExerciseCard(
-                  workoutExercise: workoutExercise,
-                )
-            ).toList()
+        return Expanded(
+          child: ListView(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              children : workoutState.remainingExercises.map<ExerciseCard>((workoutExercise) =>
+                  ExerciseCard(
+                    workoutExercise: workoutExercise,
+                  )
+              ).toList()
+          ),
         );
       }
     }

@@ -17,15 +17,12 @@ class Workout {
 class WorkoutExercise {
   final String id;  // id uniquely identifies the exercise with context to this workout
   final String exerciseId;  // refers to the global exercise id
-  final Workout workout;
+  final List<ExerciseSet> exerciseSets; // each set of the exercise
   final List<WorkoutExercise> supersets; // exercises being superset with this one
-
-  List<ExerciseSet> exerciseSets; // each set of the exercise
 
   WorkoutExercise({
     @required this.id,
     @required this.exerciseId,
-    @required this.workout,
     this.exerciseSets = const [],
     this.supersets = const[],
   });

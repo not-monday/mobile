@@ -68,10 +68,12 @@ class ActiveWorkoutVM extends Bloc<ActiveWorkoutEvent, ActiveWorkoutState>{
   Future<ActiveWorkoutState> _handleCompleteWorkoutExercise(bool success) async{
     state.completedExercises.add(state.currentExercise);
 
+    final currentExercise = (state.remainingExercises.length > 0) ? state.remainingExercises.removeAt(0) : null;
+
     return ActiveWorkoutState(
-      currentExercise: state.remainingExercises.removeAt(0),
+      currentExercise: currentExercise,
+      completedExercises: state.completedExercises,
       remainingExercises: state.remainingExercises,
-      completedExercises: state.completedExercises
     );
   }
 

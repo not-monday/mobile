@@ -34,7 +34,7 @@ class ExerciseCard extends StatelessWidget {
                   "Dumbell press",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text("workout 5/5"),
+                subtitle: Text(workoutExercise.),
               ),
             ],
           ),
