@@ -1,30 +1,36 @@
 
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/repository/program_repo.dart';
 
 enum ActiveWorkoutEvent {
-  Init, CompleteWorkoutExercise, FailedWorkoutExercise
+  Init, CompleteSet, FailSet
 }
 
 class ActiveWorkoutState {
   bool loading;
+  bool completed = false;
   WorkoutExercise currentExercise;
+  ExerciseSet currentSet;
 
-  List<WorkoutExercise> remainingExercises;
-  List<WorkoutExercise> completedExercises;
+  List<WorkoutExercise> exercises;
 
   ActiveWorkoutState({
     this.loading = false,
-    this.currentExercise,
-    @required this.remainingExercises,
-    @required this.completedExercises,
+    @required this.currentExercise,
+    @required this.currentSet,
+    @required List<WorkoutExercise> exercises
   });
 }
 
 class ActiveWorkoutVM extends Bloc<ActiveWorkoutEvent, ActiveWorkoutState>{
   final ProgramRepository programRepo;
+
+  int currentExerciseIndex;
+  int currentSetIndex;
 
   ActiveWorkoutVM({
     @required this.programRepo
@@ -34,22 +40,24 @@ class ActiveWorkoutVM extends Bloc<ActiveWorkoutEvent, ActiveWorkoutState>{
 
   @override
   ActiveWorkoutState get initialState => ActiveWorkoutState(
-      loading: true,
-      remainingExercises: List(),
-      completedExercises: List(),
+    loading: true,
+    currentExercise: null,
+    currentSet: null,
+    exercises: List(),
   );
 
   @override
   Stream<ActiveWorkoutState> mapEventToState(ActiveWorkoutEvent event) async* {
+    print(event.toString());
     switch(event) {
       case ActiveWorkoutEvent.Init:
         yield await _handleInitialize();
         break;
-      case ActiveWorkoutEvent.CompleteWorkoutExercise:
-        yield await _handleCompleteWorkoutExercise(true);
+      case ActiveWorkoutEvent.CompleteSet:
+        yield await _handleCompleteSet(true);
         break;
-      case ActiveWorkoutEvent.FailedWorkoutExercise:
-        yield await _handleCompleteWorkoutExercise(false);
+      case ActiveWorkoutEvent.FailSet:
+        yield await _handleCompleteSet(false);
         break;
     }
   }
@@ -57,24 +65,45 @@ class ActiveWorkoutVM extends Bloc<ActiveWorkoutEvent, ActiveWorkoutState>{
   Future<ActiveWorkoutState> _handleInitialize() async{
     final workout = await programRepo.retrieveWorkout();
     final exercises = workout.workoutExercises;
-    
-    return ActiveWorkoutState(
-      currentExercise: exercises.removeAt(0),
-      remainingExercises: exercises,
-      completedExercises: List(),
-    );
-  }
 
-  Future<ActiveWorkoutState> _handleCompleteWorkoutExercise(bool success) async{
-    state.completedExercises.add(state.currentExercise);
+    WorkoutExercise currentExercise;
+    ExerciseSet currentSet;
 
-    final currentExercise = (state.remainingExercises.length > 0) ? state.remainingExercises.removeAt(0) : null;
+    if (exercises.isNotEmpty) {
+      currentExercise = exercises.first;
+    }
+    if (currentExercise != null && currentExercise.exerciseSets.isNotEmpty)  {
+      currentSet = currentExercise.exerciseSets.first;
+    }
 
     return ActiveWorkoutState(
       currentExercise: currentExercise,
-      completedExercises: state.completedExercises,
-      remainingExercises: state.remainingExercises,
+      currentSet: currentSet,
+      exercises: exercises,
     );
+  }
+
+  Future<ActiveWorkoutState> _handleCompleteSet(bool success) async{
+    // TODO request to update the exercise or add it to request queue
+
+    state.currentSet.completed = true;
+    if (currentSetIndex == state.currentExercise.exerciseSets.length - 1) {
+      // complete the current exercise
+      state.currentExercise.completed = true;
+      currentExerciseIndex += 1;
+      currentSetIndex = 0;
+    } else {
+      currentSetIndex += 1;
+    }
+
+    if (currentExerciseIndex == state.exercises.length) {
+      // update state to reflect all exercises have been completed
+      state.completed = true;
+    } else {
+      state.currentExercise = state.exercises[currentSetIndex];
+    }
+
+    return state;
   }
 
 }

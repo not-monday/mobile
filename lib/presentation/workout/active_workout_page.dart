@@ -33,8 +33,19 @@ class ActiveWorkoutPage extends StatelessWidget {
   );
 
   Widget _renderCurrentExercise(ActiveWorkoutVM vm, ActiveWorkoutState workoutState) {
-    final completedExerciseCount = workoutState.completedExercises.length;
-    final remainingExerciseCount = workoutState.remainingExercises.length;
+    var completedExerciseCount = 0;
+    var remainingExerciseCount = 0;
+
+    if (workoutState.exercises != null) {
+      completedExerciseCount = workoutState.exercises
+          .where((exercise) => exercise.completed)
+          .length;
+
+      remainingExerciseCount = workoutState.exercises
+          .where((exercise) => !exercise.completed)
+          .length;
+    }
+
     final totalExerciseCount = completedExerciseCount + remainingExerciseCount + ((workoutState.currentExercise != null) ? 1 : 0);
 
     final exerciseCard = (workoutState.currentExercise == null)
@@ -45,11 +56,11 @@ class ActiveWorkoutPage extends StatelessWidget {
             onDismissed: (direction) => {
               // left swipe
               if (direction == DismissDirection.endToStart) {
-                vm.add(ActiveWorkoutEvent.FailedWorkoutExercise)
+                vm.add(ActiveWorkoutEvent.FailSet)
               }
               // right swipe
               else if (direction == DismissDirection.startToEnd) {
-                vm.add(ActiveWorkoutEvent.CompleteWorkoutExercise)
+                vm.add(ActiveWorkoutEvent.CompleteSet)
               }
             },
           );
@@ -68,6 +79,7 @@ class ActiveWorkoutPage extends StatelessWidget {
   }
 
   Widget _renderExercises(ActiveWorkoutState workoutState) {
+    print(workoutState.toString());
     if (workoutState.loading == true) {
       return Container();
     }
@@ -80,11 +92,10 @@ class ActiveWorkoutPage extends StatelessWidget {
         return Expanded(
           child: ListView(
               padding: EdgeInsets.symmetric(vertical: 10),
-              children : workoutState.remainingExercises.map<ExerciseCard>((workoutExercise) =>
-                  ExerciseCard(
-                    workoutExercise: workoutExercise,
-                  )
-              ).toList()
+//              children : workoutState.exercises
+//                  .where((exercise) => !exercise.completed)
+//                  .map((workoutExercise) => ExerciseCard(workoutExercise: workoutExercise))
+//                  .toList()
           ),
         );
       }

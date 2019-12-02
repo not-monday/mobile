@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stronk/domain/model/workout.dart';
+import 'package:stronk/presentation/component/exercise_set_card.dart';
 
 class ExerciseCard extends StatelessWidget {
   final WorkoutExercise workoutExercise;
@@ -19,22 +20,35 @@ class ExerciseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(
-          vertical: verticalSpacing,
-          horizontal: horizontalSpacing
+        vertical: verticalSpacing,
+        horizontal: horizontalSpacing
       ),
       child: InkWell(
-        child: Card(
-          color: background,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+              vertical: 2,
+              horizontal: 2
+          ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ListTile(
-                leading: Icon(Icons.album),
                 title: Text(
                   "Dumbell press",
                   style: TextStyle(fontWeight: FontWeight.bold),
+                  textScaleFactor: 1.2,
                 ),
-                subtitle: Text(workoutExercise.),
+                subtitle: Text(
+                  "3/5 remaining"
+                ),
+              ),
+              Container(
+                height: 100,
+                child : ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: workoutExercise.exerciseSets.map(
+                        (ExerciseSet exerciseSet) => ExerciseSetCard(exerciseSet: exerciseSet)
+                    ).toList()
+                ),
               ),
             ],
           ),

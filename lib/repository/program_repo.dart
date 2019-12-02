@@ -8,8 +8,18 @@ class ProgramRepository {
   }
 
   Future<Workout> retrieveWorkout() async {
+    final mockExerciseSets = [
+      ExerciseSet(weight: 50, reps: 8),
+      ExerciseSet(weight: 60, reps: 6),
+      ExerciseSet(weight: 70, reps: 4)
+    ];
+
     // todo replace with real program fetch call
-    final testWorkoutExercise = WorkoutExercise(id: "test", exerciseId: "test");
+    final testWorkoutExercise = WorkoutExercise(
+        id: "test",
+        exerciseId: "test",
+        exerciseSets: mockExerciseSets
+    );
 
     final workoutExercises = [
       testWorkoutExercise,
@@ -18,26 +28,7 @@ class ProgramRepository {
       testWorkoutExercise,
       testWorkoutExercise,
     ];
-//    final workoutExercises = [
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise,
-//      testWorkoutExercise
-//    ];
+
     return Workout(
         name: "Test program",
         id: "test",
