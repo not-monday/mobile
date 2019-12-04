@@ -1,6 +1,4 @@
 
-import 'dart:math';
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:stronk/domain/model/workout.dart';
@@ -22,7 +20,7 @@ class ActiveWorkoutState {
     this.loading = false,
     @required this.currentExercise,
     @required this.currentSet,
-    @required List<WorkoutExercise> exercises
+    @required this.exercises
   });
 }
 
@@ -76,7 +74,7 @@ class ActiveWorkoutVM extends Bloc<ActiveWorkoutEvent, ActiveWorkoutState>{
       currentSet = currentExercise.exerciseSets.first;
     }
 
-    return ActiveWorkoutState(
+    return  ActiveWorkoutState(
       currentExercise: currentExercise,
       currentSet: currentSet,
       exercises: exercises,

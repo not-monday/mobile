@@ -48,8 +48,10 @@ class ActiveWorkoutPage extends StatelessWidget {
 
     final totalExerciseCount = completedExerciseCount + remainingExerciseCount + ((workoutState.currentExercise != null) ? 1 : 0);
 
-    final exerciseCard = (workoutState.currentExercise == null)
-        ? Container()
+
+
+    final exerciseCard = (workoutState.currentSet == null)
+        ? Container() // TODO show workout completed card
         : Dismissible(
             key: UniqueKey(),
             child : ExerciseCard(workoutExercise: workoutState.currentExercise, isActive: true,),
@@ -92,10 +94,10 @@ class ActiveWorkoutPage extends StatelessWidget {
         return Expanded(
           child: ListView(
               padding: EdgeInsets.symmetric(vertical: 10),
-//              children : workoutState.exercises
-//                  .where((exercise) => !exercise.completed)
-//                  .map((workoutExercise) => ExerciseCard(workoutExercise: workoutExercise))
-//                  .toList()
+              children : workoutState.exercises
+                  .where((exercise) => !exercise.completed)
+                  .map((workoutExercise) => ExerciseCard(workoutExercise: workoutExercise))
+                  .toList()
           ),
         );
       }

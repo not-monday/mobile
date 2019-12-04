@@ -12,7 +12,7 @@ class Workout {
     this.name = "test",
     this.workoutExercises = const [],
     this.description = "test description",
-    bool completed = false
+    this.completed = false
   });
 }
 
@@ -28,7 +28,7 @@ class WorkoutExercise {
     @required this.exerciseId,
     this.exerciseSets = const [],
     this.supersets = const[],
-    bool completed = false
+    this.completed = false
   });
 }
 
@@ -41,7 +41,7 @@ class ExerciseSet {
   ExerciseSet({
     @required this.weight,
     @required this.reps,
-    bool completed = false,
-    bool failed = false
+    this.completed = false,
+    this.failed = false
   });
 }
