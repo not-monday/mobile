@@ -17,8 +17,9 @@ class Workout {
 }
 
 class WorkoutExercise {
-  final String id;  // id uniquely identifies the exercise with context to this workout
-  final String exerciseId;  // refers to the global exercise id
+  final String id;  // id uniquely identifies the exercise with context to// this workout
+  final String exerciseId;
+  final String name;// refers to the global exercise id
   final List<ExerciseSet> exerciseSets; // each set of the exercise
   final List<WorkoutExercise> supersets; // exercises being superset with this one
   bool completed;
@@ -26,6 +27,7 @@ class WorkoutExercise {
   WorkoutExercise({
     @required this.id,
     @required this.exerciseId,
+    @required this.name,
     this.exerciseSets = const [],
     this.supersets = const[],
     this.completed = false

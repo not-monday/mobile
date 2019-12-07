@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stronk/presentation/component/current_exercise_card.dart';
 import 'package:stronk/presentation/component/exercise_card.dart';
 import 'package:stronk/presentation/workout/active_workout_vm.dart';
 import 'package:stronk/presentation/workout/component/workout_completed_card.dart';
@@ -47,14 +48,11 @@ class ActiveWorkoutPage extends StatelessWidget {
     }
 
     final totalExerciseCount = completedExerciseCount + remainingExerciseCount + ((workoutState.currentExercise != null) ? 1 : 0);
-
-
-
     final exerciseCard = (workoutState.currentSet == null)
         ? Container() // TODO show workout completed card
         : Dismissible(
             key: UniqueKey(),
-            child : ExerciseCard(workoutExercise: workoutState.currentExercise, isActive: true,),
+            child : CurrentExerciseCard(workoutExercise: workoutState.currentExercise, exerciseSet : workoutState.currentSet),
             onDismissed: (direction) => {
               // left swipe
               if (direction == DismissDirection.endToStart) {

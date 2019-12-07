@@ -18,6 +18,7 @@ class ExerciseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final remainingCount = workoutExercise.exerciseSets.where((exerciseSet) => !exerciseSet.completed).length;
     return Container(
       margin: EdgeInsets.symmetric(
         vertical: verticalSpacing,
@@ -33,20 +34,21 @@ class ExerciseCard extends StatelessWidget {
             children: <Widget>[
               ListTile(
                 title: Text(
-                  "Dumbell press",
+                  workoutExercise.name,
                   style: TextStyle(fontWeight: FontWeight.bold),
                   textScaleFactor: 1.2,
                 ),
                 subtitle: Text(
-                  "3/5 remaining"
+                    remainingCount.toString() + "/" + workoutExercise.exerciseSets.length.toString() + " remaining"
                 ),
               ),
               Container(
                 height: 100,
                 child : ListView(
                     scrollDirection: Axis.horizontal,
-                    children: workoutExercise.exerciseSets.map(
-                        (ExerciseSet exerciseSet) => ExerciseSetCard(exerciseSet: exerciseSet)
+                    children: workoutExercise.exerciseSets
+                        .where((exerciseSet) => !exerciseSet.completed)
+                        .map((exerciseSet) => ExerciseSetCard(exerciseSet: exerciseSet)
                     ).toList()
                 ),
               ),
@@ -56,10 +58,4 @@ class ExerciseCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class ActiveExerciseCard extends ExerciseCard {
-  final verticalSpacing = 4.0;
-  final horizontalSpacing = 20.0;
-  final background = Colors.red[50];
 }

@@ -27,8 +27,8 @@ class ActiveWorkoutState {
 class ActiveWorkoutVM extends Bloc<ActiveWorkoutEvent, ActiveWorkoutState>{
   final ProgramRepository programRepo;
 
-  int currentExerciseIndex;
-  int currentSetIndex;
+  int currentExerciseIndex = 0;
+  int currentSetIndex = 0;
 
   ActiveWorkoutVM({
     @required this.programRepo
@@ -74,7 +74,7 @@ class ActiveWorkoutVM extends Bloc<ActiveWorkoutEvent, ActiveWorkoutState>{
       currentSet = currentExercise.exerciseSets.first;
     }
 
-    return  ActiveWorkoutState(
+    return ActiveWorkoutState(
       currentExercise: currentExercise,
       currentSet: currentSet,
       exercises: exercises,
@@ -83,10 +83,12 @@ class ActiveWorkoutVM extends Bloc<ActiveWorkoutEvent, ActiveWorkoutState>{
 
   Future<ActiveWorkoutState> _handleCompleteSet(bool success) async{
     // TODO request to update the exercise or add it to request queue
+    var currentExercise = state.currentExercise;
+    var currentSet = state.currentSet;
 
     state.currentSet.completed = true;
     if (currentSetIndex == state.currentExercise.exerciseSets.length - 1) {
-      // complete the current exercise
+      // complete the current exercise and reset the set index
       state.currentExercise.completed = true;
       currentExerciseIndex += 1;
       currentSetIndex = 0;
@@ -98,10 +100,15 @@ class ActiveWorkoutVM extends Bloc<ActiveWorkoutEvent, ActiveWorkoutState>{
       // update state to reflect all exercises have been completed
       state.completed = true;
     } else {
-      state.currentExercise = state.exercises[currentSetIndex];
+      currentExercise = state.exercises[currentExerciseIndex];
+      currentSet = currentExercise.exerciseSets[currentSetIndex];
     }
 
-    return state;
+    return ActiveWorkoutState(
+      currentExercise: currentExercise,
+      currentSet: currentSet,
+      exercises: state.exercises,
+    );
   }
 
 }
