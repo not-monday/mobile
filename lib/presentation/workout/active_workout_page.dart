@@ -93,9 +93,12 @@ class ActiveWorkoutPage extends StatelessWidget {
           child: ListView(
               padding: EdgeInsets.symmetric(vertical: 10),
               children : workoutState.exercises
-                  .where((exercise) => !exercise.completed)
-                  .map((workoutExercise) => ExerciseCard(workoutExercise: workoutExercise))
-                  .toList()
+                .where((exercise) => !exercise.completed)
+                .map((workoutExercise) => ExerciseCard(
+                  workoutExercise: workoutExercise,
+                  isActive: workoutExercise == workoutState.currentExercise
+                ))
+                .toList()
           ),
         );
       }

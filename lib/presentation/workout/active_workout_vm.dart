@@ -103,8 +103,8 @@ class ActiveWorkoutVM extends Bloc<ActiveWorkoutEvent, ActiveWorkoutState>{
       currentExercise = state.exercises[currentExerciseIndex];
       currentSet = currentExercise.exerciseSets[currentSetIndex];
     }
-
-    return ActiveWorkoutState(
+      
+      return ActiveWorkoutState(
       currentExercise: currentExercise,
       currentSet: currentSet,
       exercises: state.exercises,

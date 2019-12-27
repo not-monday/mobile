@@ -23,7 +23,7 @@ class ExerciseSetCard extends StatelessWidget {
           ),
           child: ListTile(
             title: Text(
-              exerciseSet.weight.toString() + "1 kg",
+              exerciseSet.weight.toString() + " kg",
               style: TextStyle(fontWeight: FontWeight.bold),
               textScaleFactor: 1.5,
             ),
