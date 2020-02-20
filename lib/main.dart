@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
+import 'package:stronk/api/workout_repo.dart';
 import 'package:stronk/presentation/stronk_home/stronk_home_container.dart';
 import 'package:stronk/presentation/workout/active_workout_page.dart';
 import 'package:stronk/redux/middleware/logging_middleware.dart';
@@ -40,8 +41,11 @@ class MyApp extends StatelessWidget {
         child: MultiRepositoryProvider(
           providers: <RepositoryProvider>[
             RepositoryProvider<ProgramRepository>(
-              builder : (context) => ProgramRepository()
+              create : (context) => ProgramRepository()
             ),
+            RepositoryProvider<WorkoutRepository>(
+              create : (context) => WorkoutRepositoryImpl()
+            )
           ],
           child: MaterialApp(
             title: 'Flutter Demo',
