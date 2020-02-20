@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stronk/domain/model/record.dart';
 import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/presentation/component/exercise_set_card.dart';
 
 class ExerciseCard extends StatelessWidget {
   final WorkoutExercise workoutExercise;
   final bool isActive;
+  final List<SetRecord> setRecords;
 
   final verticalSpacing = 2.0;
   final horizontalSpacing = 10.0;
@@ -13,6 +15,7 @@ class ExerciseCard extends StatelessWidget {
 
   ExerciseCard({
     @required this.workoutExercise,
+    @required this.setRecords,
     this.isActive : false
   });
 

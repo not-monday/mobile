@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stronk/api/workout_repo.dart';
+import 'package:stronk/domain/model/record.dart';
+import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/presentation/active_workout/active_workout_bloc.dart';
 import 'package:stronk/presentation/component/current_exercise_card.dart';
 import 'package:stronk/presentation/component/exercise_card.dart';
@@ -81,21 +82,37 @@ class ActiveWorkoutPage extends StatelessWidget {
   Widget _renderExercisesViewPager(ActiveWorkoutState workoutState) {
     if (workoutState.workoutRef == null) return Container();
   
-      return Expanded(
-        child: ListView(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            children : workoutState.exercises
-              .where((exercise) => !exercise.completed)
-              .map((workoutExercise) => ExerciseCard(
-                workoutExercise: workoutExercise,
-                isActive: workoutExercise == workoutState.currentExercise
-              ))
-              .toList()
-        ),
-      );
-    
+    final remainingFilter = (setRecord)=>setRecord.status == Status.Incomplete;
+    final completedFilter = (setRecord)=>setRecord.status != Status.Incomplete;
+
+
+    final remainingExercisePage = _renderExercisePage(workoutState.exerciseRecords, workoutState.setRecords, remainingFilter);
+    final completedExercisePage = _renderExercisePage(workoutState.exerciseRecords, workoutState.setRecords,completedFilter);
+
     // TODO render workout completed cart on remaining exercises screen
     // WorkoutCompletedCard
+  }
+
+  Widget _renderExercisePage(List<ExerciseRecord> exercises,List<List<SetRecord>> sets, bool filter(SetRecord e)) {
+    var setIndex = 0;
+    final remainingExercisesCards = exercises
+      .map((exercise) {
+        // get the list of remaining set records associated with this exercise
+        final setRecords = sets[setIndex].where(filter);
+        setIndex += 1; 
+
+        return new ExerciseCard(
+          workoutExercise: exercise,
+          setRecords: setRecords, 
+        );
+      }).toList();
+   
+    return Expanded(
+      child: ListView(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          children : remainingExercisesCards
+      ),
+    );
   }
 
 }
