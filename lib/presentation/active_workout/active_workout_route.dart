@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stronk/api/workout_repo.dart';
 import 'package:stronk/domain/model/record.dart';
-import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/presentation/active_workout/active_workout_bloc.dart';
 import 'package:stronk/presentation/component/current_exercise_card.dart';
 import 'package:stronk/presentation/component/exercise_card.dart';
 
 import 'component/workout_clock.dart';
 
-class ActiveWorkoutPage extends StatelessWidget {
+class ActiveWorkoutRoute extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
@@ -34,34 +33,41 @@ class ActiveWorkoutPage extends StatelessWidget {
     ),
   );
 
+  // widget for rendering the "current" workout header
   Widget _renderCurrentExercise(ActiveWorkoutBloc bloc, ActiveWorkoutState workoutState) {
-    // var completedExerciseCount = 0;
-    // var remainingExerciseCount = 0;
+    var completedExerciseCount = 0;
+    var remainingExerciseCount = 0;
 
-    // if (workoutState.exercises != null) {
-    //   completedExerciseCount = workoutState.exercises
-    //       .where((exercise) => exercise.completed)
-    //       .length;
+    if (workoutState.exerciseRecords != null) {
+      remainingExerciseCount = workoutState.exerciseRecords
+          .where((exercise) => exercise.status == Status.Incomplete)
+          .length;
 
-    //   remainingExerciseCount = workoutState.exercises
-    //       .where((exercise) => !exercise.completed)
-    //       .length;
-    // }
+      completedExerciseCount = workoutState.exerciseRecords
+          .where((exercise) => exercise.status != Status.Incomplete)
+          .length;
+    }
 
-    final totalExerciseCount = completedExerciseCount + remainingExerciseCount + ((workoutState.currentExercise != null) ? 1 : 0);
-    final exerciseCard = (workoutState.currentSet == null)
-        ? Container() // TODO show workout completed card
+    if (workoutState.workoutRef == null) return Container(); // TODO show workout completed card
+
+    final currentExercise = workoutState.exerciseRecords[workoutState.currentExerciseIndex];
+    final currentSet = currentExercise.exerciseSets[workoutState.currentSetIndex];
+
+    final totalExerciseCount = completedExerciseCount + remainingExerciseCount;
+    final exerciseCard = (workoutState.workoutRef == null) // TODO show workout completed card
+        ? Container() 
         : Dismissible(
             key: UniqueKey(),
-            child : CurrentExerciseCard(workoutExercise: workoutState.currentExercise, exerciseSet : workoutState.currentSet),
-            onDismissed: (direction) => {
+            child : CurrentExerciseCard(workoutExercise: currentExercise, exerciseSet : currentSet),
+            onDismissed: (direction){
               // left swipe
               if (direction == DismissDirection.endToStart) {
-                vm.add(ActiveWorkoutEvent.FailSet)
+                // TODO add popup for current exercise
+                // bloc.add(new FailExerciseEvent());
               }
               // right swipe
               else if (direction == DismissDirection.startToEnd) {
-                vm.add(ActiveWorkoutEvent.CompleteSet)
+                bloc.add(new CompleteExerciseEvent());
               }
             },
           );
@@ -91,6 +97,8 @@ class ActiveWorkoutPage extends StatelessWidget {
 
     // TODO render workout completed cart on remaining exercises screen
     // WorkoutCompletedCard
+
+    return Column();
   }
 
   Widget _renderExercisePage(List<ExerciseRecord> exercises,List<List<SetRecord>> sets, bool filter(SetRecord e)) {

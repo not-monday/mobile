@@ -31,11 +31,11 @@ class ActiveWorkoutState {
 // region events
 @sealed
 abstract class _Event {}
-class Init implements _Event {}
-class CompleteExercise implements _Event {}
-class FailExercise implements _Event {
+class InitEvent implements _Event {}
+class CompleteExerciseEvent implements _Event {}
+class FailExerciseEvent implements _Event {
   int repsBeforeFailure;
-  FailExercise(this.repsBeforeFailure);
+  FailExerciseEvent(this.repsBeforeFailure);
 }
 // endregion region events
 
@@ -55,11 +55,11 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
   @override
   Stream<ActiveWorkoutState> mapEventToState(_Event event) async* {
     var newState = state;
-    if (event is Init) {
+    if (event is InitEvent) {
       newState = await init();
-    } else if (event is CompleteExercise) {
+    } else if (event is CompleteExerciseEvent) {
       newState = await completeExercise();
-    } else if (event is FailExercise) {
+    } else if (event is FailExerciseEvent) {
       newState = await failExercise(event.repsBeforeFailure);
     }
 
@@ -67,18 +67,18 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
   }
 
   ActiveWorkoutBloc({@required this.workoutRepo}) {
-    add(new Init());
+    add(new InitEvent());
   }
 
   // region event handlers
   Future<ActiveWorkoutState> init() async {
-    final activeWorkout = workoutRepo.retrieveWorkout();
+    final activeWorkout = await workoutRepo.retrieveWorkout();
 
-    final exerciseRecords =  activeWorkout.workoutExercises.map(
+    final exerciseRecords = activeWorkout.workoutExercises.map(
       (exercise)=> new ExerciseRecord (
         status : Status.Incomplete, 
         exercise: exercise
-      ));
+      )).toList();
     
     final setRecords = activeWorkout.workoutExercises.map(
       // create set record for each exercise set

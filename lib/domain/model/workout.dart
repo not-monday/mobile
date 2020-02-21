@@ -62,6 +62,6 @@ class Program {
 
   Program({
     @required this.name,
-    @required this.workouts
+    this.workouts = const [],
   });
 }

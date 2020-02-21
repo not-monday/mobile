@@ -2,20 +2,20 @@ import 'package:stronk/domain/model/workout.dart';
 import 'dart:math';
 
 abstract class WorkoutRepository {
-    Program retrieveProgram();
-    Workout retrieveWorkout();
+    Future<Program> retrieveProgram();
+    Future<Workout> retrieveWorkout();
 }
 
 class WorkoutRepositoryImpl implements WorkoutRepository {
   final random = Random(1);
 
   @override
-  Program retrieveProgram() {
+  Future<Program> retrieveProgram() async {
     return _mockProgram();
   }
 
   @override
-  Workout retrieveWorkout() {
+  Future<Workout> retrieveWorkout() async {
     return _mockWorkout();
   }
 

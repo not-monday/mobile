@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stronk/domain/model/program.dart';
+import 'package:stronk/domain/model/workout.dart';
 
 class ProgramCard extends StatelessWidget {
 

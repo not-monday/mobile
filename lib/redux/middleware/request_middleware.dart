@@ -1,17 +1,16 @@
 import 'package:redux/redux.dart';
-import 'package:stronk/domain/model/program.dart';
+import 'package:stronk/api/workout_repo.dart';
 import 'package:stronk/domain/model/user.dart';
 import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/redux/reducer/app_reducer.dart';
 import 'package:stronk/redux/state/app_state.dart';
-import 'package:stronk/repository/program_repo.dart';
-import 'package:stronk/repository/user_repo.dart';
+import 'package:stronk/api/user_repo.dart';
 
 class RequestMiddleware extends MiddlewareClass<AppState> {
   UserRepo userRepo;
-  ProgramRepository programRepo;
+  WorkoutRepository workoutRepo;
 
-  RequestMiddleware(this.userRepo, this.programRepo);
+  RequestMiddleware(this.userRepo, this.workoutRepo);
 
   @override
   void call(Store store, action, NextDispatcher next) async {
@@ -35,15 +34,15 @@ class RequestMiddleware extends MiddlewareClass<AppState> {
   }
 
   _retrieveProgram(Store store, NextDispatcher next) {
-    programRepo.retrieveProgram().then((Program program) => {
+    workoutRepo.retrieveProgram().then((Program program) => {
       next(ProgramRetrievedAction(program))
     });
   }
 
   _retrieveWorkout(Store store, NextDispatcher next) {
-    programRepo.retrieveWorkout().then((Workout workout ) => {
-      next(WorkoutRetrievedAction(workout))
-    });
+    // programRepo.retrieveWorkout().then((Workout workout ) => {
+    //   next(WorkoutRetrievedAction(workout))
+    // });
   }
 
 }

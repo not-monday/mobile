@@ -10,6 +10,8 @@ class WorkoutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final buttonBarThemeData = new ButtonBarThemeData();
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
       child: InkWell(
@@ -32,7 +34,7 @@ class WorkoutCard extends StatelessWidget {
                   WorkoutLabel(workout : "DUMBELL LIFTS", sets: 5, reps: 12),
                 ],
               ),
-              ButtonTheme.bar( // make buttons use the appropriate styles for cards
+              ButtonBarTheme( // make buttons use the appropriate styles for cards
                 child: ButtonBar(
                   children: <Widget>[
                     FlatButton(
@@ -40,7 +42,8 @@ class WorkoutCard extends StatelessWidget {
                       onPressed: () { /* ... */ },
                     ),
                   ],
-                ),
+                ), 
+                data: buttonBarThemeData,
               ),
             ],
           ),

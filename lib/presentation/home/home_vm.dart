@@ -2,8 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 import 'package:redux/redux.dart';
-import 'package:stronk/domain/model/program.dart';
 import 'package:stronk/domain/model/user.dart';
+import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/redux/middleware/navigation_middleware.dart';
 import 'package:stronk/redux/state/app_state.dart';
 

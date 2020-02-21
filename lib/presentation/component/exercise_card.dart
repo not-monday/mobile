@@ -21,7 +21,8 @@ class ExerciseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final remainingCount = workoutExercise.exerciseSets.where((exerciseSet) => !exerciseSet.completed).length;
+      final remainingCount = 0;
+    // final remainingCount = workoutExercise.exerciseSets.where((exerciseSet) => !exerciseSet.completed).length;
     final remainingExercises = workoutExercise.exerciseSets.map((it) => it).toList();
     if (isActive) {
       remainingExercises.removeAt(0);
@@ -54,10 +55,10 @@ class ExerciseCard extends StatelessWidget {
                 height: 100,
                 child : ListView(
                     scrollDirection: Axis.horizontal,
-                    children: remainingExercises
-                        .where((exerciseSet) => !exerciseSet.completed)
-                        .map((exerciseSet) => ExerciseSetCard(exerciseSet: exerciseSet)
-                    ).toList()
+                    children: remainingExercises.map((exerciseSet) => ExerciseSetCard(exerciseSet: exerciseSet)).toList()
+                    //     .where((exerciseSet) => !exerciseSet.completed)
+                    //     .map((exerciseSet) => ExerciseSetCard(exerciseSet: exerciseSet)
+                    // ).toList()
                 ),
               ),
             ],

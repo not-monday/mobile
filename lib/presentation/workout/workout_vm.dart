@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:stronk/domain/model/workout.dart';
-import 'package:stronk/repository/program_repo.dart';
+import 'package:stronk/api/workout_repo.dart';
 
 enum WorkoutEvent {
   Init
@@ -17,11 +17,11 @@ class WorkoutState {
 
 class WorkoutVM extends Bloc<WorkoutEvent, WorkoutState>{
   final Workout workout;
-  final ProgramRepository programRepo;
+  final WorkoutRepository workoutRepo;
 
   WorkoutVM({
     @required this.workout,
-    @required this.programRepo
+    @required this.workoutRepo
   }) {
 
     // if active screen, initialize the
@@ -35,12 +35,12 @@ class WorkoutVM extends Bloc<WorkoutEvent, WorkoutState>{
 
   @override
   Stream<WorkoutState> mapEventToState(WorkoutEvent event) async* {
-    switch(event) {
-      case WorkoutEvent.Init:
-        final workout = await programRepo.retrieveWorkout();
-        yield WorkoutState(workout);
-        break;
-    }
+    // switch(event) {
+    //   case WorkoutEvent.Init:
+    //     final workout = await programRepo.retrieveWorkout();
+    //     yield WorkoutState(workout);
+    //     break;
+    // }
   }
 
 }   
