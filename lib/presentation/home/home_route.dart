@@ -11,10 +11,12 @@ import 'package:stronk/redux/state/app_state.dart';
 
 import 'home_vm.dart';
 
+/// the home route displays an overview of the remaining workouts this week
+/// and should also include additional heplful quick links to other routes
 class HomeRoute extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final workouts = [
+    final mockWorkouts = [
       Workout(id: "1"),
       Workout(id: "1"),
       Workout(id: "1"),
@@ -36,21 +38,19 @@ class HomeRoute extends StatelessWidget {
                     children: <Widget>[
                       GreetingCard(),
                       WorkoutCardViewPager(
-                        workouts: workouts,
+                        workouts: mockWorkouts,
                         currentWorkout: 0,
                         // TODO don't use direct navigation
                         viewProgram: () => Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => ActiveWorkoutRoute())),
-                        viewWorkout: () => Navigator.push(
+                            MaterialPageRoute(builder: (context) => ActiveWorkoutRoute())),
+                        viewWorkout: ()=> Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => ActiveWorkoutRoute())),
+                            MaterialPageRoute(builder: (context) => ActiveWorkoutRoute())
+                        ),
                         viewExercise: () => Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => ActiveWorkoutRoute())),
+                            MaterialPageRoute(builder: (context) => ActiveWorkoutRoute())),
                       ),
                     ],
                   ),

@@ -56,11 +56,11 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
   Stream<ActiveWorkoutState> mapEventToState(_Event event) async* {
     var newState = state;
     if (event is InitEvent) {
-      newState = await init();
+      newState = await handleInit().catchError((error) => print(error));
     } else if (event is CompleteExerciseEvent) {
-      newState = await completeExercise();
+      newState = await handleCompleteExercise().catchError((error) => print(error));
     } else if (event is FailExerciseEvent) {
-      newState = await failExercise(event.repsBeforeFailure);
+      newState = await handleFailExercise(event.repsBeforeFailure).catchError((error) => print(error));
     }
 
     yield newState;
@@ -71,14 +71,14 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
   }
 
   // region event handlers
-  Future<ActiveWorkoutState> init() async {
+  Future<ActiveWorkoutState> handleInit() async {
     final activeWorkout = await workoutRepo.retrieveWorkout();
 
     final exerciseRecords = activeWorkout.workoutExercises.map(
       (exercise)=> new ExerciseRecord (
-        status : Status.Incomplete, 
+        status : Status.Incomplete,
         exercise: exercise
-      )).toList();
+    )).toList();
     
     final setRecords = activeWorkout.workoutExercises.map(
       // create set record for each exercise set
@@ -88,7 +88,8 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
           repsBeforeFailure: null,
           exerciseSet: exerciseSet
         )
-      ));
+      ).toList()
+    ).toList();
 
     return new ActiveWorkoutState(
       workoutRef: activeWorkout,
@@ -100,9 +101,9 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
     );
   }
 
-  Future<ActiveWorkoutState> completeExercise() async => _updateExerciseRecord(Status.Passed, null);
+  Future<ActiveWorkoutState> handleCompleteExercise() async => _updateExerciseRecord(Status.Passed, null);
   
-  Future<ActiveWorkoutState> failExercise(int repsBeforeFailure) async  {
+  Future<ActiveWorkoutState> handleFailExercise(int repsBeforeFailure) async  {
     log("reps before failure $repsBeforeFailure");
     //TODO send failure to server
     return _updateExerciseRecord(Status.Failed, repsBeforeFailure);

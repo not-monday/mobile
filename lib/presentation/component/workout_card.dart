@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:stronk/presentation/component/workout_label.dart';
 
 class WorkoutCard extends StatelessWidget {
-  final VoidCallback viewExercise;
+  final VoidCallback viewWorkout;
 
   WorkoutCard({
-    @required this.viewExercise,
+    @required this.viewWorkout,
   });
 
   @override
@@ -15,7 +15,7 @@ class WorkoutCard extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
       child: InkWell(
-        onTap: () => viewExercise(),
+        onTap: () => viewWorkout(),
         child: Card(
           color: Colors.lightBlue[50],
           child: Column(
@@ -39,7 +39,7 @@ class WorkoutCard extends StatelessWidget {
                   children: <Widget>[
                     FlatButton(
                       child: const Text('VIEW WORKOUT'),
-                      onPressed: () { /* ... */ },
+                      onPressed: ()=> viewWorkout(),
                     ),
                   ],
                 ), 

@@ -35,6 +35,8 @@ class ActiveWorkoutRoute extends StatelessWidget {
 
   // widget for rendering the "current" workout header
   Widget _renderCurrentExercise(ActiveWorkoutBloc bloc, ActiveWorkoutState workoutState) {
+    if (workoutState.workoutRef == null) return Container(child: Text("Retrieving workout")); // TODO show workout completed card
+
     var completedExerciseCount = 0;
     var remainingExerciseCount = 0;
 
@@ -48,14 +50,14 @@ class ActiveWorkoutRoute extends StatelessWidget {
           .length;
     }
 
-    if (workoutState.workoutRef == null) return Container(); // TODO show workout completed card
-
     final currentExercise = workoutState.exerciseRecords[workoutState.currentExerciseIndex];
     final currentSet = currentExercise.exerciseSets[workoutState.currentSetIndex];
 
     final totalExerciseCount = completedExerciseCount + remainingExerciseCount;
     final exerciseCard = (workoutState.workoutRef == null) // TODO show workout completed card
-        ? Container() 
+        ? Container(
+          child: Text("Retrieving workout")
+        )
         : Dismissible(
             key: UniqueKey(),
             child : CurrentExerciseCard(workoutExercise: currentExercise, exerciseSet : currentSet),
@@ -106,7 +108,7 @@ class ActiveWorkoutRoute extends StatelessWidget {
     final remainingExercisesCards = exercises
       .map((exercise) {
         // get the list of remaining set records associated with this exercise
-        final setRecords = sets[setIndex].where(filter);
+        final setRecords = sets[setIndex].where(filter).toList();
         setIndex += 1; 
 
         return new ExerciseCard(
@@ -122,5 +124,4 @@ class ActiveWorkoutRoute extends StatelessWidget {
       ),
     );
   }
-
 }

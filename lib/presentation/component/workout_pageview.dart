@@ -58,7 +58,7 @@ class _WorkoutPageViewState extends State<WorkoutCardViewPager> {
               scrollDirection: Axis.horizontal,
               children: workouts.map<WorkoutCard>((workout) =>
                   WorkoutCard(
-                    viewExercise: viewExercise,
+                    viewWorkout: viewWorkout,
                   )
               ).toList(),
               onPageChanged: onWorkoutScroll,

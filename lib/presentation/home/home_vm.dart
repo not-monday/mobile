@@ -24,8 +24,6 @@ class HomeVM extends Bloc<HomeEvent, _HomeState> {
 
   var _state = _HomeState();
 
-  
-
   HomeVM({
     @required this.store,
     @required this.user,
