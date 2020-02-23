@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stronk/api/workout_repo.dart';
-import 'package:stronk/presentation/component/exercise_card.dart';
+import 'package:stronk/presentation/component/exercise_row.dart';
 import 'package:stronk/presentation/workout/workout_vm.dart';
 
 class WorkoutPage extends StatelessWidget {
@@ -46,8 +46,8 @@ class WorkoutPage extends StatelessWidget {
       } else {
         return ListView(
             padding: EdgeInsets.symmetric(vertical: 10),
-            children : workoutState.workout.workoutExercises.map<ExerciseCard>((workoutExercise) =>
-                ExerciseCard(
+            children : workoutState.workout.workoutExercises.map<ExerciseRow>((workoutExercise) =>
+                ExerciseRow(
                   workoutExercise: workoutExercise,
                 )
             ).toList()

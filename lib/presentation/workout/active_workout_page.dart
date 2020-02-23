@@ -2,7 +2,7 @@
 // import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:stronk/presentation/component/current_exercise_card.dart';
-// import 'package:stronk/presentation/component/exercise_card.dart';
+// import 'package:stronk/presentation/component/exercise_row.dart';
 // import 'package:stronk/presentation/workout/active_workout_vm.dart';
 // import 'package:stronk/presentation/workout/component/workout_completed_card.dart';
 // import 'package:stronk/repository/program_repo.dart';
