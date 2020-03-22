@@ -34,6 +34,16 @@ class ActiveWorkoutState {
         "currentSetIndex: $currentSetIndex\n"
         "completed: $completed\n");
   }
+
+  @override
+  bool operator ==(other) {
+    return true;
+//    if (other is ActiveWorkoutState) {
+//      return true;
+//    } else {
+//      return false;
+//    }
+  }
 }
 
 // region events
@@ -69,13 +79,13 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
     if (event is InitEvent) {
       newState = await handleInit().catchError((error) => print(error));
     } else if (event is CompleteExerciseEvent) {
-      newState =
-          await handleCompleteExercise().catchError((error) => print(error));
+      newState = await handleCompleteExercise().catchError((error) => print(error));
     } else if (event is FailExerciseEvent) {
       newState = await handleFailExercise(event.repsBeforeFailure)
           .catchError((error) => print(error));
     }
 
+    print(newState);
     yield newState;
   }
 

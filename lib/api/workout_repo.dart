@@ -7,7 +7,7 @@ abstract class WorkoutRepository {
 }
 
 class WorkoutRepositoryImpl implements WorkoutRepository {
-  final random = Random(1);
+  static final random = Random(1);
 
   @override
   Future<Program> retrieveProgram() async {
@@ -16,10 +16,10 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
 
   @override
   Future<Workout> retrieveWorkout() async {
-    return _mockWorkout();
+    return mockWorkout();
   }
 
-  WorkoutExercise _mockWorkoutExercise() {
+  static WorkoutExercise _mockWorkoutExercise() {
     final mockExerciseSets = [
         _mockExerciseSetparams(),
         _mockExerciseSetparams(),
@@ -37,14 +37,14 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
     return (mockWorkoutExercise);
   }
 
-  ExerciseSet _mockExerciseSetparams() {
+  static ExerciseSet _mockExerciseSetparams() {
       return new ExerciseSet(
         weight : 20,
         number: 6
       );
   }
 
-  Workout _mockWorkout() {
+  static Workout mockWorkout() {
       final mockWorkoutExercises = [
           _mockWorkoutExercise(),
           _mockWorkoutExercise(),
@@ -61,11 +61,11 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
       return mockWorkout; 
   }
 
-  Program _mockProgram() {
+  static Program _mockProgram() {
       final mockWorkouts = [
-          _mockWorkout(),
-          _mockWorkout(),
-          _mockWorkout(),
+          mockWorkout(),
+          mockWorkout(),
+          mockWorkout(),
       ];
 
       return new Program(
