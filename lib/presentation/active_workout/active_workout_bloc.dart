@@ -34,16 +34,6 @@ class ActiveWorkoutState {
         "currentSetIndex: $currentSetIndex\n"
         "completed: $completed\n");
   }
-
-  @override
-  bool operator ==(other) {
-    return true;
-//    if (other is ActiveWorkoutState) {
-//      return true;
-//    } else {
-//      return false;
-//    }
-  }
 }
 
 // region events
@@ -85,7 +75,6 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
           .catchError((error) => print(error));
     }
 
-    print(newState);
     yield newState;
   }
 
@@ -143,7 +132,7 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
     final currSetRecord = setRecords[state.currentSetIndex];
     final newSetRecord = new SetRecord(
         status: status,
-        repsBeforeFailure: currSetRecord.repsBeforeFailure,
+        repsBeforeFailure: repsBeforeFailure,
         exerciseSet: currSetRecord);
 
     final newExerciseSetRecords = [...setRecords];
