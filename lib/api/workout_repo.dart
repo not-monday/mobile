@@ -1,9 +1,11 @@
-import 'package:stronk/domain/model/workout.dart';
 import 'dart:math';
 
+import 'package:stronk/domain/model/workout.dart';
+
 abstract class WorkoutRepository {
-    Future<Program> retrieveProgram();
-    Future<Workout> retrieveWorkout();
+  Future<Program> retrieveProgram();
+
+  Future<Workout> retrieveWorkout();
 }
 
 class WorkoutRepositoryImpl implements WorkoutRepository {
@@ -21,56 +23,49 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
 
   static WorkoutExercise _mockWorkoutExercise() {
     final mockExerciseSets = [
-        _mockExerciseSetparams(),
-        _mockExerciseSetparams(),
-        _mockExerciseSetparams(),
+      _mockExerciseSetparams(),
+      _mockExerciseSetparams(),
+      _mockExerciseSetparams(),
     ];
 
     final mockWorkoutExercise = new WorkoutExercise(
-        id : "${random.nextInt(10000)}",
-        name: "workout name",
-        exerciseId: "1",
-        exerciseSets: mockExerciseSets,
-        supersets: [],
+      id: "${random.nextInt(10000)}",
+      name: "workout name",
+      exerciseId: "1",
+      exerciseSets: mockExerciseSets,
+      supersets: [],
     );
 
     return (mockWorkoutExercise);
   }
 
   static ExerciseSet _mockExerciseSetparams() {
-      return new ExerciseSet(
-        weight : 20,
-        number: 6
-      );
+    return new ExerciseSet(weight: 20, number: 6);
   }
 
   static Workout mockWorkout() {
-      final mockWorkoutExercises = [
-          _mockWorkoutExercise(),
-          _mockWorkoutExercise(),
-          _mockWorkoutExercise(),
-      ];
+    final mockWorkoutExercises = [
+      _mockWorkoutExercise(),
+      _mockWorkoutExercise(),
+      _mockWorkoutExercise(),
+    ];
 
-      final mockWorkout = Workout(
-        id : "${random.nextInt(10000)}",
+    final mockWorkout = Workout(
+        id: "${random.nextInt(10000)}",
         name: "mock workout",
         description: "mock description",
-        workoutExercises: mockWorkoutExercises
-      );
+        workoutExercises: mockWorkoutExercises);
 
-      return mockWorkout; 
+    return mockWorkout;
   }
 
   static Program _mockProgram() {
-      final mockWorkouts = [
-          mockWorkout(),
-          mockWorkout(),
-          mockWorkout(),
-      ];
+    final mockWorkouts = [
+      mockWorkout(),
+      mockWorkout(),
+      mockWorkout(),
+    ];
 
-      return new Program(
-          name: "mock program name",
-          workouts: mockWorkouts
-      );
+    return new Program(name: "mock program name", workouts: mockWorkouts);
   }
 }

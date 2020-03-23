@@ -29,8 +29,7 @@ class WorkoutExercise {
   final String name; // refers to the global exercise id
   final String exerciseId;
   final List<ExerciseSet> exerciseSets; // each set of the exercise
-  final List<WorkoutExercise>
-      supersets; // exercises being superset with this one
+  final List<WorkoutExercise> supersets; // exercises being superset with this one
 
   WorkoutExercise({
     @required this.id,

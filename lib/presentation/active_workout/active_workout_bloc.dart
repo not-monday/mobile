@@ -71,8 +71,7 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
     } else if (event is CompleteExerciseEvent) {
       newState = await handleCompleteExercise().catchError((error) => print(error));
     } else if (event is FailExerciseEvent) {
-      newState = await handleFailExercise(event.repsBeforeFailure)
-          .catchError((error) => print(error));
+      newState = await handleFailExercise(event.repsBeforeFailure).catchError((error) => print(error));
     }
 
     yield newState;
@@ -87,18 +86,15 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
     final activeWorkout = await workoutRepo.retrieveWorkout();
 
     final exerciseRecords = activeWorkout.workoutExercises
-        .map((exercise) =>
-            new ExerciseRecord(status: Status.Incomplete, exercise: exercise))
+        .map((exercise) => new ExerciseRecord(status: Status.Incomplete, exercise: exercise))
         .toList();
 
     final setRecords = activeWorkout.workoutExercises
         .map(
             // create set record for each exercise set
             (exercise) => exercise.exerciseSets
-                .map((exerciseSet) => new SetRecord(
-                    status: Status.Incomplete,
-                    repsBeforeFailure: null,
-                    exerciseSet: exerciseSet))
+                .map((exerciseSet) =>
+                    new SetRecord(status: Status.Incomplete, repsBeforeFailure: null, exerciseSet: exerciseSet))
                 .toList())
         .toList();
 
@@ -111,8 +107,7 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
         completed: state.completed);
   }
 
-  Future<ActiveWorkoutState> handleCompleteExercise() async =>
-      _updateExerciseRecord(Status.Passed, null);
+  Future<ActiveWorkoutState> handleCompleteExercise() async => _updateExerciseRecord(Status.Passed, null);
 
   Future<ActiveWorkoutState> handleFailExercise(int repsBeforeFailure) async {
     log("reps before failure $repsBeforeFailure");
@@ -122,18 +117,15 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
 
   // endregion event handlers
 
-  ActiveWorkoutState _updateExerciseRecord(
-      Status status, int repsBeforeFailure) {
+  ActiveWorkoutState _updateExerciseRecord(Status status, int repsBeforeFailure) {
     if (state.workoutRef == null) return null;
 
     final setRecords = state.setRecords[state.currentExerciseIndex];
 
     // update set record with new status
     final currSetRecord = setRecords[state.currentSetIndex];
-    final newSetRecord = new SetRecord(
-        status: status,
-        repsBeforeFailure: repsBeforeFailure,
-        exerciseSet: currSetRecord);
+    final newSetRecord =
+        new SetRecord(status: status, repsBeforeFailure: repsBeforeFailure, exerciseSet: currSetRecord);
 
     final newExerciseSetRecords = [...setRecords];
     newExerciseSetRecords[state.currentSetIndex] = newSetRecord;
@@ -148,11 +140,10 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
     // update the index of the current exercise if it has no more sets
     if (state.currentSetIndex == newSetRecords.length - 1) {
       // update the exercises to reflect the completion of current exercise
-      final currExerciseRecord =
-          state.exerciseRecords[state.currentExerciseIndex];
+      final currExerciseRecord = state.exerciseRecords[state.currentExerciseIndex];
       newExerciseRecords = [...state.exerciseRecords];
-      newExerciseRecords[state.currentExerciseIndex] = new ExerciseRecord(
-          exercise: currExerciseRecord, status: Status.Passed);
+      newExerciseRecords[state.currentExerciseIndex] =
+          new ExerciseRecord(exercise: currExerciseRecord, status: Status.Passed);
 
       newSetIndex = 0;
       newExerciseIndex = state.currentExerciseIndex + 1;
