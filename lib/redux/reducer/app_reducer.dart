@@ -1,4 +1,3 @@
-import 'package:stronk/domain/model/program.dart';
 import 'package:stronk/domain/model/user.dart';
 import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/redux/state/app_state.dart';

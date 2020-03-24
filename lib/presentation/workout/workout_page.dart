@@ -1,16 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:stronk/presentation/component/exercise_card.dart';
+import 'package:stronk/api/workout_repo.dart';
+import 'package:stronk/presentation/component/exercise_row.dart';
 import 'package:stronk/presentation/workout/workout_vm.dart';
-import 'package:stronk/repository/program_repo.dart';
 
 class WorkoutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
     builder: (context) => WorkoutVM(
-        programRepo : RepositoryProvider.of<ProgramRepository>(context),
+        workoutRepo : RepositoryProvider.of<WorkoutRepository>(context),
         workout: null
     ),
     child : BlocBuilder<WorkoutVM, WorkoutState>(
@@ -31,7 +31,7 @@ class WorkoutPage extends StatelessWidget {
           )
         )
       ),
-    ),
+    ), create: (BuildContext context) {},
   );
 
   Widget renderContent(WorkoutState workoutState) {
@@ -46,8 +46,8 @@ class WorkoutPage extends StatelessWidget {
       } else {
         return ListView(
             padding: EdgeInsets.symmetric(vertical: 10),
-            children : workoutState.workout.workoutExercises.map<ExerciseCard>((workoutExercise) =>
-                ExerciseCard(
+            children : workoutState.workout.workoutExercises.map<ExerciseRow>((workoutExercise) =>
+                ExerciseRow(
                   workoutExercise: workoutExercise,
                 )
             ).toList()

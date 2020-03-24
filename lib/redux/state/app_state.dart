@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:stronk/domain/model/program.dart';
 import 'package:stronk/domain/model/user.dart';
+import 'package:stronk/domain/model/workout.dart';
 
 enum Navigation { Day, Search, Profile}
 

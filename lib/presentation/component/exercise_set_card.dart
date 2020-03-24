@@ -28,7 +28,7 @@ class ExerciseSetCard extends StatelessWidget {
               textScaleFactor: 1.5,
             ),
             subtitle: Text(
-              "x" + exerciseSet.reps.toString(),
+              "x" + exerciseSet.number.toString(),
               textScaleFactor: 1.5,
             ),
           ),

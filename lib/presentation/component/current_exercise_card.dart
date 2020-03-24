@@ -31,7 +31,7 @@ class CurrentExerciseCard extends StatelessWidget {
                 textScaleFactor: 1.4,
               ),
               subtitle: Text(
-                  exerciseSet.weight.toString() + "lb x " + exerciseSet.reps.toString(),
+                  exerciseSet.weight.toString() + "lb x " + exerciseSet.number.toString(),
                   textScaleFactor: 1.2,
               ),
             ),
