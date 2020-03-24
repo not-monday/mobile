@@ -73,8 +73,8 @@ class ActiveWorkoutRoute extends StatelessWidget {
                 onDismissed: (direction) {
                   // left swipe
                   if (direction == DismissDirection.endToStart) {
-                    // TODO add popup for current exercise
-                    // bloc.add(new FailExerciseEvent());
+                    // TODO add popup for selecting reps before failure
+                     bloc.add(new FailExerciseEvent(0));
                   }
                   // right swipe
                   else if (direction == DismissDirection.startToEnd) {
