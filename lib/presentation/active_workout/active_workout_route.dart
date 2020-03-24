@@ -10,37 +10,57 @@ import 'component/workout_clock.dart';
 
 class ActiveWorkoutRoute extends StatelessWidget {
   final appbarBackground = Colors.red[300];
+  final appBarHighlight = Colors.red[100];
 
   @override
-  Widget build(BuildContext context) => BlocProvider(
-        create: (context) {
-          final workoutRepo = RepositoryProvider.of<WorkoutRepository>(context);
-          return ActiveWorkoutBloc(workoutRepo: workoutRepo);
-        },
-        child: BlocBuilder<ActiveWorkoutBloc, ActiveWorkoutState>(
-            builder: (context, workoutState) => DefaultTabController(
-                  length: 2,
-                  child: Scaffold(
-                      appBar: PreferredSize(
-                        preferredSize: Size.fromHeight(260.0),
-                        child: AppBar(
-                          backgroundColor: appbarBackground,
-                          flexibleSpace: Center(
-                            child: _renderHeader(
-                              BlocProvider.of<ActiveWorkoutBloc>(context),
-                              workoutState,
-                            ),
-                          ),
-                          bottom: TabBar(
-                            tabs: [Text("Remaining"), Text("Completed")],
-                          ),
-                        ),
-                      ),
-                      body: Column(children: [
-                        _renderTabBarView(workoutState),
-                      ])),
-                )),
-      );
+  Widget build(BuildContext context) {
+    final workoutRepo = RepositoryProvider.of<WorkoutRepository>(context);
+
+    return BlocProvider(
+      create: (context) => ActiveWorkoutBloc(workoutRepo: workoutRepo),
+      child: BlocBuilder<ActiveWorkoutBloc, ActiveWorkoutState>(
+          // separating the rendering of the page is much cleaner
+          builder: buildPage),
+    );
+  }
+
+  Widget buildPage(BuildContext context, ActiveWorkoutState workoutState) {
+    final activeWorkoutBloc = BlocProvider.of<ActiveWorkoutBloc>(context);
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+          appBar: buildAppbar(activeWorkoutBloc, workoutState),
+          body: Column(children: [
+            _renderTabBarView(workoutState),
+          ])),
+    );
+  }
+
+  Widget buildAppbar(ActiveWorkoutBloc bloc, ActiveWorkoutState workoutState) {
+    var remainingTabText = "Remaining (${workoutState.remainingExerciseCount})";
+    var completedTabText = "Completed (${workoutState.completedExerciseCount})";
+
+    return PreferredSize(
+      preferredSize: Size.fromHeight(220.0),
+      child: AppBar(
+        backgroundColor: appbarBackground,
+        flexibleSpace: Center(
+          child: _renderHeader(bloc, workoutState),
+        ),
+        bottom: TabBar(
+          labelPadding: EdgeInsets.all(16),
+          indicatorColor: appBarHighlight,
+          indicatorWeight: 4.0,
+          indicatorPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
+          indicatorSize: TabBarIndicatorSize.label,
+          tabs: [
+            Text(remainingTabText),
+            Text(completedTabText),
+          ],
+        ),
+      ),
+    );
+  }
 
   // widget for rendering the "current" workout header
   Widget _renderHeader(ActiveWorkoutBloc bloc, ActiveWorkoutState workoutState) {
@@ -50,21 +70,9 @@ class ActiveWorkoutRoute extends StatelessWidget {
     // TODO create "completed exercise view
     if (workoutState.completed) return Container(child: Text("Completed Workout!"));
 
-    var completedExerciseCount = 0;
-    var remainingExerciseCount = 0;
-
-    if (workoutState.exerciseRecords != null) {
-      remainingExerciseCount =
-          workoutState.exerciseRecords.where((exercise) => exercise.status == Status.Incomplete).length;
-
-      completedExerciseCount =
-          workoutState.exerciseRecords.where((exercise) => exercise.status != Status.Incomplete).length;
-    }
-
     final currentExercise = workoutState.exerciseRecords[workoutState.currentExerciseIndex];
     final currentSet = currentExercise.exerciseSets[workoutState.currentSetIndex];
 
-    final totalExerciseCount = completedExerciseCount + remainingExerciseCount;
     final exerciseCard = (workoutState.workoutRef == null) // TODO show workout completed card
         ? Container(child: Text("Retrieving workout"))
         : Dismissible(
@@ -90,7 +98,6 @@ class ActiveWorkoutRoute extends StatelessWidget {
         children: <Widget>[
           WorkoutClock(),
           Container(height: 100, child: exerciseCard),
-          Text("Completed $completedExerciseCount/$totalExerciseCount exercises")
         ],
       ),
       color: Colors.red[300],
@@ -99,13 +106,13 @@ class ActiveWorkoutRoute extends StatelessWidget {
 
   Widget _renderTabBarView(ActiveWorkoutState workoutState) {
     if (workoutState.workoutRef == null)
-      return TabBarView(
+      return Expanded(
+          child: TabBarView(
         children: [Text("loading"), Text("loading")],
-      );
-    if (workoutState.completed)
-      return TabBarView(
-        children: [Text("loading"), Text("loading")],
-      );
+      ));
+
+    // TODO add widget to display workout completed
+//    if (workoutState.completed)
 
     final remainingFilter = (setRecord) => setRecord.status == Status.Incomplete;
     final completedFilter = (setRecord) => setRecord.status != Status.Incomplete;
@@ -115,11 +122,7 @@ class ActiveWorkoutRoute extends StatelessWidget {
     final completedExercisePage =
         _renderExercisePage("Completed", workoutState.exerciseRecords, workoutState.setRecords, completedFilter);
 
-    // TODO render workout completed cart on remaining exercises screen
-//    return TabBarView(
-//      children: [remainingExercisePage, completedExercisePage],
-//    );
-
+    // TODO render workout completed card on remaining exercises screen
     return Expanded(child: TabBarView(children: [remainingExercisePage, completedExercisePage]));
   }
 
@@ -142,9 +145,7 @@ class ActiveWorkoutRoute extends StatelessWidget {
         .toList();
 
     return Container(
-      child: ListView(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          children: exerciseCards),
+      child: ListView(padding: EdgeInsets.symmetric(vertical: 10), children: exerciseCards),
     );
   }
 }

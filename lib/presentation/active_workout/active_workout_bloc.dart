@@ -15,6 +15,8 @@ class ActiveWorkoutState {
   final List<List<SetRecord>> setRecords;
   final int currentExerciseIndex;
   final int currentSetIndex;
+  final int remainingExerciseCount;
+  final int completedExerciseCount;
   final bool completed;
 
   ActiveWorkoutState(
@@ -23,6 +25,8 @@ class ActiveWorkoutState {
       @required this.setRecords,
       @required this.currentExerciseIndex,
       @required this.currentSetIndex,
+      @required this.remainingExerciseCount,
+      @required this.completedExerciseCount,
       @required this.completed});
 
   @override
@@ -61,6 +65,8 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
       setRecords: [],
       currentExerciseIndex: 0,
       currentSetIndex: 0,
+      remainingExerciseCount: 0,
+      completedExerciseCount: 0,
       completed: false);
 
   @override
@@ -89,22 +95,24 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
         .map((exercise) => new ExerciseRecord(status: Status.Incomplete, exercise: exercise))
         .toList();
 
+    // create set record for each exercise set
     final setRecords = activeWorkout.workoutExercises
-        .map(
-            // create set record for each exercise set
-            (exercise) => exercise.exerciseSets
-                .map((exerciseSet) =>
-                    new SetRecord(status: Status.Incomplete, repsBeforeFailure: null, exerciseSet: exerciseSet))
-                .toList())
+        .map((exercise) => exercise.exerciseSets
+            .map((exerciseSet) =>
+                new SetRecord(status: Status.Incomplete, repsBeforeFailure: null, exerciseSet: exerciseSet))
+            .toList())
         .toList();
 
     return new ActiveWorkoutState(
-        workoutRef: activeWorkout,
-        exerciseRecords: exerciseRecords,
-        setRecords: setRecords,
-        currentSetIndex: state.currentSetIndex,
-        currentExerciseIndex: state.currentExerciseIndex,
-        completed: state.completed);
+      workoutRef: activeWorkout,
+      exerciseRecords: exerciseRecords,
+      setRecords: setRecords,
+      currentSetIndex: state.currentSetIndex,
+      currentExerciseIndex: state.currentExerciseIndex,
+      remainingExerciseCount: activeWorkout.workoutExercises.length,
+      completedExerciseCount: 0,
+      completed: state.completed,
+    );
   }
 
   Future<ActiveWorkoutState> handleCompleteExercise() async => _updateExerciseRecord(Status.Passed, null);
@@ -136,6 +144,8 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
     var newExerciseRecords = state.exerciseRecords;
     var newExerciseIndex = state.currentExerciseIndex;
     var completedWorkout = state.completed;
+    var remainingCount = state.remainingExerciseCount;
+    var completedCount = state.completedExerciseCount;
 
     // update the index of the current exercise if it has no more sets
     if (state.currentSetIndex == newSetRecords.length - 1) {
@@ -152,6 +162,9 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
         // complete workout if all exercises have been completed
         completedWorkout = true;
       }
+
+      remainingCount -= 1;
+      completedCount += 1;
     }
 
     return ActiveWorkoutState(
@@ -160,6 +173,8 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
         currentExerciseIndex: newExerciseIndex,
         exerciseRecords: newExerciseRecords,
         setRecords: newSetRecords,
+        remainingExerciseCount: remainingCount,
+        completedExerciseCount: completedCount,
         completed: completedWorkout);
   }
 }
