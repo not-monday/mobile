@@ -9,79 +9,87 @@ import 'package:stronk/presentation/component/exercise_row.dart';
 import 'component/workout_clock.dart';
 
 class ActiveWorkoutRoute extends StatelessWidget {
+  final appbarBackground = Colors.red[300];
+  final appBarHighlight = Colors.red[100];
+
   @override
-  Widget build(BuildContext context) => BlocProvider(
-        create: (context) {
-          final workoutRepo = RepositoryProvider.of<WorkoutRepository>(context);
-          return ActiveWorkoutBloc(workoutRepo: workoutRepo);
-        },
-        child: BlocBuilder<ActiveWorkoutBloc, ActiveWorkoutState>(
-          builder: (context, workoutState) => Scaffold(
-              body: Column(children: [
-            Center(
-              child: _renderHeader(
-                BlocProvider.of<ActiveWorkoutBloc>(context),
-                workoutState,
-              ),
-            ),
-            _renderExercisesViewPager(workoutState)
+  Widget build(BuildContext context) {
+    final workoutRepo = RepositoryProvider.of<WorkoutRepository>(context);
+
+    return BlocProvider(
+      create: (context) => ActiveWorkoutBloc(workoutRepo: workoutRepo),
+      child: BlocBuilder<ActiveWorkoutBloc, ActiveWorkoutState>(
+          // separating the rendering of the page is much cleaner
+          builder: buildPage),
+    );
+  }
+
+  Widget buildPage(BuildContext context, ActiveWorkoutState workoutState) {
+    final activeWorkoutBloc = BlocProvider.of<ActiveWorkoutBloc>(context);
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+          appBar: buildAppbar(activeWorkoutBloc, workoutState),
+          body: Column(children: [
+            _renderTabBarView(workoutState),
           ])),
+    );
+  }
+
+  Widget buildAppbar(ActiveWorkoutBloc bloc, ActiveWorkoutState workoutState) {
+    var remainingTabText = "Remaining (${workoutState.remainingExerciseCount})";
+    var completedTabText = "Completed (${workoutState.completedExerciseCount})";
+
+    return PreferredSize(
+      preferredSize: Size.fromHeight(220.0),
+      child: AppBar(
+        backgroundColor: appbarBackground,
+        flexibleSpace: Center(
+          child: _renderHeader(bloc, workoutState),
         ),
-      );
+        bottom: TabBar(
+          labelPadding: EdgeInsets.all(16),
+          indicatorColor: appBarHighlight,
+          indicatorWeight: 4.0,
+          indicatorPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
+          indicatorSize: TabBarIndicatorSize.label,
+          tabs: [
+            Text(remainingTabText),
+            Text(completedTabText),
+          ],
+        ),
+      ),
+    );
+  }
 
   // widget for rendering the "current" workout header
-  Widget _renderHeader(
-      ActiveWorkoutBloc bloc, ActiveWorkoutState workoutState) {
-
+  Widget _renderHeader(ActiveWorkoutBloc bloc, ActiveWorkoutState workoutState) {
     if (workoutState.workoutRef == null)
-      return Container(
-          child:
-              Text("Retrieving workout")); // TODO show workout completed card
+      return Container(child: Text("Retrieving workout")); // TODO show workout completed card
 
     // TODO create "completed exercise view
-    if (workoutState.completed)
-      return Container(
-          child:
-          Text("Completed Workout!"));
+    if (workoutState.completed) return Container(child: Text("Completed Workout!"));
 
-    var completedExerciseCount = 0;
-    var remainingExerciseCount = 0;
+    final currentExercise = workoutState.exerciseRecords[workoutState.currentExerciseIndex];
+    final currentSet = currentExercise.exerciseSets[workoutState.currentSetIndex];
 
-    if (workoutState.exerciseRecords != null) {
-      remainingExerciseCount = workoutState.exerciseRecords
-          .where((exercise) => exercise.status == Status.Incomplete)
-          .length;
-
-      completedExerciseCount = workoutState.exerciseRecords
-          .where((exercise) => exercise.status != Status.Incomplete)
-          .length;
-    }
-
-    final currentExercise =
-        workoutState.exerciseRecords[workoutState.currentExerciseIndex];
-    final currentSet =
-        currentExercise.exerciseSets[workoutState.currentSetIndex];
-
-    final totalExerciseCount = completedExerciseCount + remainingExerciseCount;
-    final exerciseCard =
-        (workoutState.workoutRef == null) // TODO show workout completed card
-            ? Container(child: Text("Retrieving workout"))
-            : Dismissible(
-                key: UniqueKey(),
-                child: CurrentExerciseCard(
-                    workoutExercise: currentExercise, exerciseSet: currentSet),
-                onDismissed: (direction) {
-                  // left swipe
-                  if (direction == DismissDirection.endToStart) {
-                    // TODO add popup for selecting reps before failure
-                     bloc.add(new FailExerciseEvent(0));
-                  }
-                  // right swipe
-                  else if (direction == DismissDirection.startToEnd) {
-                    bloc.add(new CompleteExerciseEvent());
-                  }
-                },
-              );
+    final exerciseCard = (workoutState.workoutRef == null) // TODO show workout completed card
+        ? Container(child: Text("Retrieving workout"))
+        : Dismissible(
+            key: UniqueKey(),
+            child: CurrentExerciseCard(workoutExercise: currentExercise, exerciseSet: currentSet),
+            onDismissed: (direction) {
+              // left swipe
+              if (direction == DismissDirection.endToStart) {
+                // TODO add popup for selecting reps before failure
+                bloc.add(new FailExerciseEvent(0));
+              }
+              // right swipe
+              else if (direction == DismissDirection.startToEnd) {
+                bloc.add(new CompleteExerciseEvent());
+              }
+            },
+          );
 
     return Container(
       height: 210,
@@ -89,61 +97,55 @@ class ActiveWorkoutRoute extends StatelessWidget {
       child: Column(
         children: <Widget>[
           WorkoutClock(),
-          Container(
-            height: 100,
-            child: exerciseCard
-          ),
-          Text("Completed $completedExerciseCount/$totalExerciseCount exercises")
+          Container(height: 100, child: exerciseCard),
         ],
       ),
       color: Colors.red[300],
     );
   }
 
-  Widget _renderExercisesViewPager(ActiveWorkoutState workoutState) {
-    if (workoutState.workoutRef == null) return Container();
-    if (workoutState.completed) return Container();
+  Widget _renderTabBarView(ActiveWorkoutState workoutState) {
+    if (workoutState.workoutRef == null)
+      return Expanded(
+          child: TabBarView(
+        children: [Text("loading"), Text("loading")],
+      ));
 
-    final remainingFilter =
-        (setRecord) => setRecord.status == Status.Incomplete;
-    final completedFilter =
-        (setRecord) => setRecord.status != Status.Incomplete;
+    // TODO add widget to display workout completed
+//    if (workoutState.completed)
 
-    final remainingExercisePage = _renderExercisePage(
-        workoutState.exerciseRecords, workoutState.setRecords, remainingFilter);
-    final completedExercisePage = _renderExercisePage(
-        workoutState.exerciseRecords, workoutState.setRecords, completedFilter);
+    final remainingFilter = (setRecord) => setRecord.status == Status.Incomplete;
+    final completedFilter = (setRecord) => setRecord.status != Status.Incomplete;
 
-    // TODO render workout completed cart on remaining exercises screen
-    return Expanded(
-      child: PageView(children: [
-        remainingExercisePage,
-        completedExercisePage
-      ])
-    );
+    final remainingExercisePage =
+        _renderExercisePage("Remaining", workoutState.exerciseRecords, workoutState.setRecords, remainingFilter);
+    final completedExercisePage =
+        _renderExercisePage("Completed", workoutState.exerciseRecords, workoutState.setRecords, completedFilter);
+
+    // TODO render workout completed card on remaining exercises screen
+    return Expanded(child: TabBarView(children: [remainingExercisePage, completedExercisePage]));
   }
 
-  Widget _renderExercisePage(List<ExerciseRecord> exercises,
-      List<List<SetRecord>> sets, bool filter(SetRecord e)) {
+  Widget _renderExercisePage(
+      title, List<ExerciseRecord> exercises, List<List<SetRecord>> sets, bool filter(SetRecord e)) {
     var setIndex = 0;
-    final exerciseCards = exercises.map((exercise) {
-      // get the list of set records satisfying predicate and create a new
-      // exercise record using only those sets
-      final setRecords = sets[setIndex].where(filter).toList();
-      setIndex += 1;
+    final exerciseCards = exercises
+        .map((exercise) {
+          // get the list of set records satisfying predicate and create a new
+          // exercise record using only those sets
+          final setRecords = sets[setIndex].where(filter).toList();
+          setIndex += 1;
 
-      return ExerciseRow(
-        workoutExercise: exercise,
-        setRecords: setRecords,
-      );
-    })
-    .where((exerciseRow)=>exerciseRow.setRecords.isNotEmpty)
-    .toList();
+          return ExerciseRow(
+            workoutExercise: exercise,
+            setRecords: setRecords,
+          );
+        })
+        .where((exerciseRow) => exerciseRow.setRecords.isNotEmpty)
+        .toList();
 
     return Container(
-      child: ListView(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          children: exerciseCards),
+      child: ListView(padding: EdgeInsets.symmetric(vertical: 10), children: exerciseCards),
     );
   }
 }
