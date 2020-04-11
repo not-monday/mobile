@@ -11,6 +11,7 @@ import 'package:stronk/redux/middleware/request_middleware.dart';
 import 'package:stronk/redux/reducer/app_reducer.dart';
 import 'package:stronk/redux/state/app_state.dart';
 
+import 'api/settings_repo.dart';
 import 'api/user_repo.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -42,7 +43,10 @@ class MyApp extends StatelessWidget {
           providers: <RepositoryProvider>[
             RepositoryProvider<WorkoutRepository>(
               create : (context) => WorkoutRepositoryImpl()
-            )
+            ),
+            RepositoryProvider<SettingsRepository>(
+              create : (context) => SettingsRepositoryImpl()
+            ),
           ],
           child: MaterialApp(
             title: 'Flutter Demo',
