@@ -12,11 +12,13 @@ import 'package:stronk/redux/reducer/app_reducer.dart';
 import 'package:stronk/redux/state/app_state.dart';
 
 import 'api/user_repo.dart';
+import 'auth_utils.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() => runApp(MyApp());
 
 final WorkoutRepository workoutRepo = WorkoutRepositoryImpl();
+final authManager = AuthManager();
 
 class MyApp extends StatelessWidget {
   final Store<AppState> store = Store<AppState>(
@@ -32,42 +34,66 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
     // initialize action to retrieve the user and their current program
     store.dispatch(RetrieveUserAction());
     store.dispatch(RetrieveProgramAction());
 
+    final authFuture = authManager
+        .handleSignIn()
+        .catchError((e) {
+          final scaffold = Scaffold.of(context);
+          scaffold.showSnackBar(
+            SnackBar(
+              content: Text("error signing in $e"),
+              action: SnackBarAction(
+                  label: 'try again', onPressed: scaffold.hideCurrentSnackBar),
+              ),
+            );
+          });
+
+    return FutureBuilder (
+      future: authFuture,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        return buildApp();
+      },
+    );
+  }
+
+  Widget buildApp() {
     return StoreProvider(
         store: store,
         child: MultiRepositoryProvider(
-          providers: <RepositoryProvider>[
-            RepositoryProvider<WorkoutRepository>(
-              create : (context) => WorkoutRepositoryImpl()
+            providers: <RepositoryProvider>[
+              RepositoryProvider<WorkoutRepository>(
+                  create : (context) => WorkoutRepositoryImpl()
+              )
+            ],
+            child: MaterialApp(
+                title: 'Flutter Demo',
+                theme: ThemeData(
+                  // This is the theme of your application.
+                  //
+                  // Try running your application with "flutter run". You'll see the
+                  // application has a blue toolbar. Then, without quitting the app, try
+                  // changing the primarySwatch below to Colors.green and then invoke
+                  // "hot reload" (press "r" in the console where you ran "flutter run",
+                  // or simply save your changes to "hot reload" in a Flutter IDE).
+                  // Notice that the counter didn't reset back to zero; the application
+                  // is not restarted.
+                  primarySwatch: Colors.blue,
+                ),
+                initialRoute: '/',
+                routes: {
+                  '/': (context) => StronkHomePage(),
+                  '/workout': (context) => ActiveWorkoutRoute(),
+                }
             )
-          ],
-          child: MaterialApp(
-            title: 'Flutter Demo',
-            theme: ThemeData(
-              // This is the theme of your application.
-              //
-              // Try running your application with "flutter run". You'll see the
-              // application has a blue toolbar. Then, without quitting the app, try
-              // changing the primarySwatch below to Colors.green and then invoke
-              // "hot reload" (press "r" in the console where you ran "flutter run",
-              // or simply save your changes to "hot reload" in a Flutter IDE).
-              // Notice that the counter didn't reset back to zero; the application
-              // is not restarted.
-              primarySwatch: Colors.blue,
-            ),
-            initialRoute: '/',
-            routes: {
-              '/': (context) => StronkHomePage(),
-              '/workout': (context) => ActiveWorkoutRoute(),
-            }
-          )
         )
     );
   }
 }
+
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
