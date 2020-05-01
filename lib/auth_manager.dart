@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// manages authentication and maintains the current user account
 class AuthManager {
-  Account currentAccount;
   FirebaseUser currentUser;
 
   // injected deps
@@ -69,18 +68,6 @@ class Credentials {
   String accessToken;
   String idToken;
   Credentials({this.accessToken, this.idToken});
-}
-
-class Account {
-  String uid, displayName, photoUrl, email, phoneNumber,token;
-  Account({
-    this.uid,
-    this.displayName,
-    this.photoUrl,
-    this.email,
-    this.phoneNumber,
-    this.token
-  });
 }
 
 class SignInException implements Exception {
