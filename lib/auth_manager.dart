@@ -19,7 +19,6 @@ class AuthManager {
   });
 
   Future<void> handleSignIn() async {
-    // TODO check nullity
     // first try to get current account info from shared pref
     _getCurrentCredentials().then((existingCredentials) async {
       var credentials = existingCredentials;
@@ -34,7 +33,7 @@ class AuthManager {
         final googleAuth = await googleUser.authentication;
         // store credentials locally for later use
         credentials = Credentials(accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
-        setCurrentCredentials(credentials);
+        _setCurrentCredentials(credentials);
       }
 
       // build auth provider credentials to sign in
@@ -55,7 +54,7 @@ class AuthManager {
     return Credentials(accessToken: accessToken, idToken: idToken);
   }
 
-  Future<Credentials> setCurrentCredentials(Credentials credentials) async {
+  Future<Credentials> _setCurrentCredentials(Credentials credentials) async {
     sharedPrefs.setString(KEY_ACCESS_TOKEN, credentials.accessToken);
     sharedPrefs.setString(KEY_ID_TOKEN, credentials.idToken);
   }
