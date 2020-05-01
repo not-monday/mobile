@@ -1,31 +1,37 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// initialize google signin and firebase auth instances
-final GoogleSignIn _googleSignIn = GoogleSignIn();
-final FirebaseAuth _auth = FirebaseAuth.instance;
-
-/*
-utilities dealing with authentication
- */
+/// manages authentication and maintains the current user account
 class AuthManager {
-  SharedPreferences prefs = null;
-  Account currentAccount = null;
-  FirebaseUser currentUser = null;
+  Account currentAccount;
+  FirebaseUser currentUser;
 
-  handleSignIn() async {
-    if (prefs == null) {
-      prefs = await SharedPreferences.getInstance();
-    }
+  // injected deps
+  GoogleSignIn googleSignIn;
+  FirebaseAuth firebaseAuth;
+  SharedPreferences sharedPrefs;
+
+  AuthManager({
+    @required this.googleSignIn,
+    @required this.firebaseAuth,
+    @required this.sharedPrefs,
+  });
+
+  Future<void> handleSignIn() async {
+    // TODO check nullity
     // first try to get current account info from shared pref
-    getCurrentCredentials().then((existingCredentials) async {
+    _getCurrentCredentials().then((existingCredentials) async {
       var credentials = existingCredentials;
 
       // user hasn't logged in on the app
       if (existingCredentials == null) {
         // interactive sign 
-        var googleUser = await _googleSignIn.signIn();
+        var googleUser = await googleSignIn.signIn();
+        if (googleUser == null) {
+          throw SignInException(message: "Error signing in");
+        }
         final googleAuth = await googleUser.authentication;
         // store credentials locally for later use
         credentials = Credentials(accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
@@ -38,21 +44,21 @@ class AuthManager {
         idToken: credentials.idToken,
       );
 
-      currentUser = (await _auth.signInWithCredential(googleCredentials)).user;
+      currentUser = (await firebaseAuth.signInWithCredential(googleCredentials)).user;
     });
   }
 
-  Future<Credentials> getCurrentCredentials() async {
-    final accessToken =  prefs.getString(KEY_ACCESS_TOKEN);
-    final idToken =  prefs.getString(KEY_ID_TOKEN);
+  Future<Credentials> _getCurrentCredentials() async {
+    final accessToken = sharedPrefs.getString(KEY_ACCESS_TOKEN);
+    final idToken = sharedPrefs.getString(KEY_ID_TOKEN);
 
     if (accessToken == null || idToken == null) return null;
     return Credentials(accessToken: accessToken, idToken: idToken);
   }
 
   Future<Credentials> setCurrentCredentials(Credentials credentials) async {
-    prefs.setString(KEY_ACCESS_TOKEN, credentials.accessToken);
-    prefs.setString(KEY_ID_TOKEN, credentials.idToken);
+    sharedPrefs.setString(KEY_ACCESS_TOKEN, credentials.accessToken);
+    sharedPrefs.setString(KEY_ID_TOKEN, credentials.idToken);
   }
 }
 
@@ -75,4 +81,10 @@ class Account {
     this.phoneNumber,
     this.token
   });
+}
+
+class SignInException implements Exception {
+  String message;
+
+  SignInException({@required this.message});
 }
