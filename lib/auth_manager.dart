@@ -5,10 +5,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+const KEY_ACCESS_TOKEN = "account.uid";
+const KEY_ID_TOKEN = "account.uid";
+
 /// manages authentication and maintains the current user account
 class AuthManager {
-  StreamController<FirebaseUser> currentUserController = StreamController();
-  Stream<FirebaseUser> currentUser;
+  StreamController<FirebaseUser> _currentUserController = StreamController.broadcast();
+
+  Stream<FirebaseUser> get currentUser {
+    return _currentUserController.stream;
+  }
 
   // injected deps
   GoogleSignIn googleSignIn;
@@ -19,17 +25,22 @@ class AuthManager {
     @required this.googleSignIn,
     @required this.firebaseAuth,
     @required this.sharedPrefs,
-  }) {
-    currentUser = currentUserController.stream;
-  }
+  });
 
+  /// handles the sign in of a user (MUST BE CALLED FOR EVERY SESSION)
+  /// First checks if credentials have been cached (stored in local prefs).
+  /// If not, it'll start the Firebase Auth interactive sign in process to obtain the credentials
+  ///
+  /// Once credentials have been obtained, we perform the firebase sign in process to obtain an instance
+  /// of the firebase user and notify observers via the stream
+  ///
   Future<void> handleSignIn() async {
     // first try to get current account info from shared pref
     var credentials = await _getCurrentCredentials();
 
     // user hasn't logged in the app
     if (credentials == null) {
-      // interactive sign
+      // start the interactive sign process
       var googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         throw SignInException(message: "Error signing in");
@@ -46,8 +57,8 @@ class AuthManager {
       idToken: credentials.idToken,
     );
 
-    var user = (await firebaseAuth.signInWithCredential(googleCredentials)).user;
-    currentUserController.add(user);
+    var authResult = await firebaseAuth.signInWithCredential(googleCredentials);
+    _currentUserController.add(authResult.user);
   }
 
   Future<Credentials> _getCurrentCredentials() async {
@@ -58,14 +69,11 @@ class AuthManager {
     return Credentials(accessToken: accessToken, idToken: idToken);
   }
 
-  Future<Credentials> _setCurrentCredentials(Credentials credentials) async {
+  Future _setCurrentCredentials(Credentials credentials) async {
     sharedPrefs.setString(KEY_ACCESS_TOKEN, credentials.accessToken);
     sharedPrefs.setString(KEY_ID_TOKEN, credentials.idToken);
   }
 }
-
-const KEY_ACCESS_TOKEN = "account.uid";
-const KEY_ID_TOKEN = "account.uid";
 
 class Credentials {
   String accessToken;
