@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -5,7 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// manages authentication and maintains the current user account
 class AuthManager {
-  FirebaseUser currentUser;
+  StreamController<FirebaseUser> currentUserController = StreamController();
+  Stream<FirebaseUser> currentUser;
 
   // injected deps
   GoogleSignIn googleSignIn;
@@ -16,34 +19,35 @@ class AuthManager {
     @required this.googleSignIn,
     @required this.firebaseAuth,
     @required this.sharedPrefs,
-  });
+  }) {
+    currentUser = currentUserController.stream;
+  }
 
   Future<void> handleSignIn() async {
     // first try to get current account info from shared pref
-    _getCurrentCredentials().then((existingCredentials) async {
-      var credentials = existingCredentials;
+    var credentials = await _getCurrentCredentials();
 
-      // user hasn't logged in on the app
-      if (existingCredentials == null) {
-        // interactive sign 
-        var googleUser = await googleSignIn.signIn();
-        if (googleUser == null) {
-          throw SignInException(message: "Error signing in");
-        }
-        final googleAuth = await googleUser.authentication;
-        // store credentials locally for later use
-        credentials = Credentials(accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
-        _setCurrentCredentials(credentials);
+    // user hasn't logged in the app
+    if (credentials == null) {
+      // interactive sign
+      var googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        throw SignInException(message: "Error signing in");
       }
+      final googleAuth = await googleUser.authentication;
+      // store credentials locally for later use
+      credentials = Credentials(accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
+      _setCurrentCredentials(credentials);
+    }
 
-      // build auth provider credentials to sign in
-      var googleCredentials = GoogleAuthProvider.getCredential(
-        accessToken: credentials.accessToken,
-        idToken: credentials.idToken,
-      );
+    // build auth provider credentials to sign in
+    var googleCredentials = GoogleAuthProvider.getCredential(
+      accessToken: credentials.accessToken,
+      idToken: credentials.idToken,
+    );
 
-      currentUser = (await firebaseAuth.signInWithCredential(googleCredentials)).user;
-    });
+    var user = (await firebaseAuth.signInWithCredential(googleCredentials)).user;
+    currentUserController.add(user);
   }
 
   Future<Credentials> _getCurrentCredentials() async {

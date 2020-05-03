@@ -1,24 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
+import '../auth_manager.dart';
+
 class GraphQLUtility {
-  //  AuthManager =
-//  final authLink = AuthLink(getToken: () async => )
+  AuthManager authManager;
 
+  HttpLink httpLink = HttpLink(uri: "stronk.com");
+  AuthLink authLink;
+  Link link;
 
-//  GraphQLUtility({
-//    @required this.authManager
-//  });
-
-  final httpLink = HttpLink(uri: "stronk.com");
   GraphQLClient client;
 
-  GraphQLUtility() {
-    client = GraphQLClient(
-      cache: InMemoryCache(),
-      link: httpLink,
-    );
+  GraphQLUtility({
+    @required this.authManager
+  }) {
+    // subscribe to changes to current user and update client
+    authManager.currentUser.listen((user) {
+      authLink = AuthLink(getToken: () async => user.getIdToken().toString());
+      link = authLink.concat(httpLink);
+      client = GraphQLClient(
+        cache: InMemoryCache(),
+        link: httpLink,
+      );
+    });
+
   }
-
-
 }

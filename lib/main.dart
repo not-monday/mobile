@@ -26,13 +26,10 @@ void main() => runApp(MyApp());
 final GoogleSignIn _googleSignIn = GoogleSignIn();
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
-final GraphQLUtility utility = GraphQLUtility();
-final WorkoutRepository workoutRepo = WorkoutRepositoryImpl(utility: utility);
-final UserRepository userRepo = UserRepositoryImpl(utility: utility);
-
-SharedPreferences prefs;
 AuthManager authManager;
-
+GraphQLUtility utility;
+WorkoutRepository workoutRepo;
+UserRepository userRepo;
 
 class MyApp extends StatelessWidget {
   final Store<AppState> store = Store<AppState>(
@@ -54,53 +51,87 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // initialize action to retrieve the user and their current program
-    store.dispatch(RetrieveUserAction());
-    store.dispatch(RetrieveProgramAction());
+//    store.dispatch(RetrieveUserAction());
+//    store.dispatch(RetrieveProgramAction());
 
-    return FutureBuilder(
-      future: handleAuth(context),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        return StoreProvider(
-            store: store,
-            child: MultiRepositoryProvider(
-              providers: repositoryProviders,
-              child: _buildAppUI()
-            )
-        );
-      },
-    );
-  }
+      var authManagerFuture = getAuthManager();
 
-  /// handles authentication for the user
-  /// - we need to separate this out into its own async function because the shared preferences needed to construct
-  /// the auth manager is obtained async as well
-  Future handleAuth(BuildContext context) async{
-    AuthManager(googleSignIn: _googleSignIn, firebaseAuth:  _auth, sharedPrefs: await SharedPreferences.getInstance())
-        .handleSignIn()
-        .catchError((e) {
-      final scaffold = Scaffold.of(context);
-      scaffold.showSnackBar(
-        SnackBar(
-          content: Text("error signing in $e"),
-          action: SnackBarAction(
-              label: 'try again', onPressed: scaffold.hideCurrentSnackBar),
-        ),
+      return FutureBuilder<AuthManager>(
+        future: authManagerFuture,
+        builder: (BuildContext context, AsyncSnapshot<AuthManager> snapshot) {
+          var authManager = snapshot.data;
+          if (authManager == null) {
+            // TODO add loading animation/screen
+            return MaterialApp(
+              builder: (BuildContext context, Widget widget) => Text("Loading"),
+            );
+          }
+
+          initializeAuth(context);
+          return StreamBuilder<FirebaseUser>(
+            stream: authManager.currentUser,
+            builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
+              var currentUser = snapshot.data;
+              if (currentUser == null) {
+                // TODO add loading animation/screen
+                return MaterialApp(
+                  builder: (BuildContext context, Widget widget) => Text("Loading"),
+                );
+              }
+
+              return StoreProvider(
+                  store: store,
+                  child: MultiRepositoryProvider(
+                      providers: repositoryProviders,
+                      child: _buildAppUI()
+                  )
+              );
+            },
+          );
+        },
       );
-    });
-  }
+    }
 
-  // renders the actual app UI
-  Widget _buildAppUI() {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => StronkHomePage(),
-        '/workout': (context) => ActiveWorkoutRoute(),
-      }
-    );
+    // TODO convert to factory or static method
+    Future<AuthManager> getAuthManager() async {
+      authManager = AuthManager(googleSignIn: _googleSignIn, firebaseAuth:  _auth, sharedPrefs: await SharedPreferences.getInstance());
+      return authManager;
+    }
+
+    /// handles authentication for the user
+    /// - we need to separate this out into its own async function because the shared preferences needed to construct
+    /// the auth manager is obtained async as well
+    Future initializeAuth(BuildContext context) async {
+      authManager.handleSignIn()
+          .then((_) {
+            utility = GraphQLUtility(authManager: authManager);
+            workoutRepo = WorkoutRepositoryImpl(utility: utility);
+            userRepo = UserRepositoryImpl(utility: utility);
+          })
+          .catchError((e) {
+            final scaffold = Scaffold.of(context);
+            scaffold.showSnackBar(
+              SnackBar(
+                content: Text("error signing in $e"),
+                action: SnackBarAction(
+                    label: 'try again', onPressed: scaffold.hideCurrentSnackBar),
+              ),
+            );
+          });
+    }
+
+    // renders the actual app UI
+    Widget _buildAppUI() {
+      return MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+          initialRoute: '/',
+          routes: {
+            '/': (context) => StronkHomePage(),
+            '/workout': (context) => ActiveWorkoutRoute(),
+          }
+      );
+    }
   }
-}
