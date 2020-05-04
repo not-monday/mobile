@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:redux/redux.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,8 +62,15 @@ class MyApp extends StatelessWidget {
         authManager = snapshot.data;
         initializeAuth(context);
 
-        return StoreProvider(
-            store: store, child: MultiRepositoryProvider(providers: repositoryProviders, child: _buildAppUI()));
+        return StreamBuilder <Account>(
+          stream: authManager?.currentAccount,
+          builder: (BuildContext context, AsyncSnapshot<Account> snapshot) {
+            return StoreProvider(
+              store: store,
+              child: MultiRepositoryProvider(providers: repositoryProviders, child: _buildAppUI())
+            );
+          }
+        );
       },
     );
   }
@@ -72,7 +80,7 @@ class MyApp extends StatelessWidget {
   /// TODO consider converting auth manager init to static async
   Future<AuthManager> getAuthManager() async {
     authManager = AuthManager(
-        googleSignIn: _googleSignIn, firebaseAuth: _auth, sharedPrefs: await SharedPreferences.getInstance());
+      googleSignIn: _googleSignIn, firebaseAuth: _auth, sharedPrefs: await SharedPreferences.getInstance());
 
     graphQLUtility = GraphQLUtility(authManager: authManager);
     workoutRepo = WorkoutRepositoryImpl(utility: graphQLUtility);
@@ -86,38 +94,35 @@ class MyApp extends StatelessWidget {
   /// the auth manager is obtained async as well
   Future initializeAuth(BuildContext context) async {
     authManager.handleSignIn().catchError((e) {
-      final scaffold = Scaffold.of(context);
-      scaffold.showSnackBar(
-        SnackBar(
-          content: Text("error signing in $e"),
-          action: SnackBarAction(label: 'try again', onPressed: scaffold.hideCurrentSnackBar),
-        ),
+//      final scaffold = Scaffold.of(context);
+//      scaffold.showSnackBar(
+//        SnackBar(
+//          content: Text("error signing in $e"),
+//          action: SnackBarAction(label: 'try again', onPressed: scaffold.hideCurrentSnackBar),
+//        ),
+//      );
+
+      Fluttertoast.showToast(
+        msg: "error signing in $e",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
       );
     });
   }
 
   // renders the actual app UI
   Widget _buildAppUI() {
-    return StreamBuilder<FirebaseUser>(
-      stream: authManager?.currentUser,
-      builder: (BuildContext context, AsyncSnapshot<FirebaseUser> snapshot) {
-        final currentUser = snapshot.data;
-
-        // build route based on user
-        var initialRoute = (currentUser != null) ? "/" : "/";
-
-        return MaterialApp(
-            title: 'Stronk',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-            ),
-            initialRoute: initialRoute,
-            routes: {
-              '/': (context) => StronkHomePage(),
-              '/loading': (context) => LoadingScreen(),
-              '/workout': (context) => ActiveWorkoutRoute(),
-            });
-      },
-    );
+    var app = MaterialApp(
+      title: 'Stronk',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      initialRoute: "/",
+      routes: {
+        '/': (context) => StronkHomePage(),
+        '/loading': (context) => LoadingScreen(),
+        '/workout': (context) => ActiveWorkoutRoute(),
+      });
+    return app;
   }
 }

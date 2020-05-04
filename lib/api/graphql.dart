@@ -16,8 +16,8 @@ class GraphQLUtility {
     @required this.authManager
   }) {
     // subscribe to changes to current user and update client
-    authManager.currentUser.listen((user) {
-      authLink = AuthLink(getToken: () async => user.getIdToken().toString());
+    authManager.currentAccount.listen((account) {
+      authLink = AuthLink(getToken: () async => account.credentials.idToken.toString());
       link = authLink.concat(httpLink);
       client = GraphQLClient(
         cache: InMemoryCache(),
