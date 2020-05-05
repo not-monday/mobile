@@ -14,6 +14,7 @@ import 'package:stronk/redux/middleware/request_middleware.dart';
 import 'package:stronk/redux/reducer/app_reducer.dart';
 import 'package:stronk/redux/state/app_state.dart';
 
+import 'api/settings_repo.dart';
 import 'api/user_repo.dart';
 import 'auth_manager.dart';
 
@@ -43,7 +44,8 @@ class MyApp extends StatelessWidget {
 
   // repositories that are made available for all descendants
   final repositoryProviders = [
-    RepositoryProvider<WorkoutRepository>(create : (context) => WorkoutRepositoryImpl())
+    RepositoryProvider<WorkoutRepository>(create : (context) => WorkoutRepositoryImpl()),
+    RepositoryProvider<SettingsRepository>(create : (context) => SettingsRepositoryImpl())
   ];
 
   @override
