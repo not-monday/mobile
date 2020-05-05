@@ -20,6 +20,7 @@ import 'package:stronk/redux/state/app_state.dart';
 import 'api/settings_repo.dart';
 import 'api/user_repo.dart';
 import 'auth_manager.dart';
+import 'config.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -33,6 +34,7 @@ AuthManager authManager;
 GraphQLUtility graphQLUtility;
 WorkoutRepository workoutRepo;
 UserRepository userRepo;
+SettingsRepository settingsRepo;
 
 class MyApp extends StatelessWidget {
   final Store<AppState> store = Store<AppState>(appReducer, initialState: AppState.initial(), middleware: [
@@ -44,13 +46,13 @@ class MyApp extends StatelessWidget {
   // repositories that are made available for all descendants
   final repositoryProviders = [
     RepositoryProvider<WorkoutRepository>(create : (context) => workoutRepo),
-    RepositoryProvider<SettingsRepository>(create : (context) => SettingsRepositoryImpl())
+    RepositoryProvider<SettingsRepository>(create : (context) => settingsRepo)
   ];
-  
+
   @override
   Widget build(BuildContext context) {
     // initialize the future outsize of the future builder
-    var authManagerFuture = getAuthManager();
+    var authManagerFuture = initializeAuthManager();
 
     // initialize action to retrieve the user and their current program
 //    store.dispatch(RetrieveUserAction());
@@ -60,8 +62,9 @@ class MyApp extends StatelessWidget {
       future: authManagerFuture,
       builder: (BuildContext context, AsyncSnapshot<AuthManager> snapshot) {
         authManager = snapshot.data;
-        initializeAuth(context);
+        if (authManager == null) return Container();
 
+        handleSignIn(context);
         return StreamBuilder <Account>(
           stream: authManager?.currentAccount,
           builder: (BuildContext context, AsyncSnapshot<Account> snapshot) {
@@ -78,13 +81,15 @@ class MyApp extends StatelessWidget {
   /// We only need this async method because we need to wait for the sharedPrefs to resolve before creating the auth
   /// manager
   /// TODO consider converting auth manager init to static async
-  Future<AuthManager> getAuthManager() async {
+  Future<AuthManager> initializeAuthManager() async {
+    initializeConfig();
     authManager = AuthManager(
       googleSignIn: _googleSignIn, firebaseAuth: _auth, sharedPrefs: await SharedPreferences.getInstance());
 
     graphQLUtility = GraphQLUtility(authManager: authManager);
     workoutRepo = WorkoutRepositoryImpl(utility: graphQLUtility);
     userRepo = UserRepositoryImpl(utility: graphQLUtility);
+    settingsRepo = SettingsRepositoryImpl();
 
     return authManager;
   }
@@ -92,16 +97,8 @@ class MyApp extends StatelessWidget {
   /// handles authentication for the user
   /// - we need to separate this out into its own async function because the shared preferences needed to construct
   /// the auth manager is obtained async as well
-  Future initializeAuth(BuildContext context) async {
+  Future handleSignIn(BuildContext context) async {
     authManager.handleSignIn().catchError((e) {
-//      final scaffold = Scaffold.of(context);
-//      scaffold.showSnackBar(
-//        SnackBar(
-//          content: Text("error signing in $e"),
-//          action: SnackBarAction(label: 'try again', onPressed: scaffold.hideCurrentSnackBar),
-//        ),
-//      );
-
       Fluttertoast.showToast(
         msg: "error signing in $e",
         toastLength: Toast.LENGTH_SHORT,

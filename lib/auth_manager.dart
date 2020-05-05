@@ -42,9 +42,8 @@ class AuthManager {
     if (account == null) {
       account = await _initialSignIn();
     }
-
     _currentAccountController.add(account);
-   }
+  }
 
   Future<Account> _initialSignIn() async {
     // start the interactive sign process
@@ -65,9 +64,8 @@ class AuthManager {
 
     // store credentials locally for later use
     var account = Account(
-      name : authResult.user.displayName,
-      credentials: Credentials(accessToken: googleAuth.accessToken, idToken: googleAuth.idToken)
-    );
+        name: authResult.user.displayName,
+        credentials: Credentials(accessToken: googleAuth.accessToken, idToken: googleAuth.idToken));
     _setCurrentAccount(account);
     return account;
   }
@@ -78,10 +76,7 @@ class AuthManager {
     final idToken = sharedPrefs.getString(KEY_ID_TOKEN);
 
     if (accessToken == null || idToken == null) return null;
-    return Account(
-      name: name,
-      credentials: Credentials(accessToken: accessToken, idToken: idToken)
-    );
+    return Account(name: name, credentials: Credentials(accessToken: accessToken, idToken: idToken));
   }
 
   Future _setCurrentAccount(Account account) async {
