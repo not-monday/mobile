@@ -5,6 +5,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:redux/redux.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stronk/api/graphql.dart';
 import 'package:stronk/api/workout_repo.dart';
 import 'package:stronk/presentation/active_workout/active_workout_route.dart';
 import 'package:stronk/presentation/stronk_home/stronk_home_container.dart';
@@ -25,7 +26,9 @@ void main() => runApp(MyApp());
 final GoogleSignIn _googleSignIn = GoogleSignIn();
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
-final WorkoutRepository workoutRepo = WorkoutRepositoryImpl();
+final GraphQLUtility utility = GraphQLUtility();
+final WorkoutRepository workoutRepo = WorkoutRepositoryImpl(utility: utility);
+final UserRepository userRepo = UserRepositoryImpl(utility: utility);
 
 SharedPreferences prefs;
 AuthManager authManager;
@@ -37,14 +40,14 @@ class MyApp extends StatelessWidget {
     initialState :AppState.initial(),
     middleware: [
       LoggingMiddleware(),
-      RequestMiddleware(UserRepo(), WorkoutRepositoryImpl()),
+      RequestMiddleware(userRepo, workoutRepo),
       NavigationMiddleware(navigatorKey : navigatorKey),
     ]
   );
 
   // repositories that are made available for all descendants
   final repositoryProviders = [
-    RepositoryProvider<WorkoutRepository>(create : (context) => WorkoutRepositoryImpl()),
+    RepositoryProvider<WorkoutRepository>(create : (context) => workoutRepo),
     RepositoryProvider<SettingsRepository>(create : (context) => SettingsRepositoryImpl())
   ];
 

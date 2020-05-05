@@ -7,7 +7,7 @@ import 'package:stronk/redux/state/app_state.dart';
 import 'package:stronk/api/user_repo.dart';
 
 class RequestMiddleware extends MiddlewareClass<AppState> {
-  UserRepo userRepo;
+  UserRepositoryImpl userRepo;
   WorkoutRepository workoutRepo;
 
   RequestMiddleware(this.userRepo, this.workoutRepo);
