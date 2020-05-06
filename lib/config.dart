@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:yaml/yaml.dart';
-import 'dart:io';
 
 const DEBUG = !kReleaseMode;
 
 // since dart doesn't support async contructor/factory
 // a static config instance provides the best ergonomics
+// ignore: non_constant_identifier_names
 Config CONFIG;
 
 class Config {

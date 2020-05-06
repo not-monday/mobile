@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 
 import '../auth_manager.dart';
 import '../config.dart';
@@ -10,9 +10,6 @@ class GraphQLUtility {
   AuthManager authManager;
 
   HttpLink httpLink;
-  AuthLink authLink;
-  Link link;
-
   GraphQLClient client;
 
   GraphQLUtility({
@@ -22,13 +19,24 @@ class GraphQLUtility {
 
     // subscribe to changes to current user and update client
     authManager.currentAccount.listen((account) {
-      authLink = AuthLink(getToken: () async => account.credentials.idToken.toString());
-      link = authLink.concat(httpLink);
       client = GraphQLClient(
         cache: InMemoryCache(),
-        link: httpLink,
+        link: _createLink(account.credentials.idToken.toString()),
       );
     });
+  }
 
+  Link _createLink(String idToken) {
+    final authLink = AuthLink(getToken: () => "Bearer $idToken");
+    return authLink.concat(httpLink);
+  }
+
+  /// creates a temporary graphql client for creating a new user account because the actual client
+  /// isn't initialized until the account is ready
+  GraphQLClient temporaryClient(String idToken) {
+    return GraphQLClient(
+      cache: InMemoryCache(),
+      link: _createLink(idToken),
+    );
   }
 }

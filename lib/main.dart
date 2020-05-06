@@ -45,8 +45,10 @@ class MyApp extends StatelessWidget {
 
   // repositories that are made available for all descendants
   final repositoryProviders = [
+    RepositoryProvider<AuthManager>(create : (context) => authManager),
+    RepositoryProvider<UserRepository>(create : (context) => userRepo),
     RepositoryProvider<WorkoutRepository>(create : (context) => workoutRepo),
-    RepositoryProvider<SettingsRepository>(create : (context) => settingsRepo)
+    RepositoryProvider<SettingsRepository>(create : (context) => settingsRepo),
   ];
 
   @override
@@ -62,7 +64,7 @@ class MyApp extends StatelessWidget {
       future: authManagerFuture,
       builder: (BuildContext context, AsyncSnapshot<AuthManager> snapshot) {
         authManager = snapshot.data;
-        if (authManager == null) return Container();
+        if (authManager == null) return MaterialApp(home: LoadingScreen(),);
 
         handleSignIn(context);
         return StreamBuilder <Account>(
@@ -82,10 +84,11 @@ class MyApp extends StatelessWidget {
   /// manager
   /// TODO consider converting auth manager init to static async
   Future<AuthManager> initializeAuthManager() async {
-    initializeConfig();
+    var futureConfig = initializeConfig();
     authManager = AuthManager(
       googleSignIn: _googleSignIn, firebaseAuth: _auth, sharedPrefs: await SharedPreferences.getInstance());
 
+    await futureConfig;
     graphQLUtility = GraphQLUtility(authManager: authManager);
     workoutRepo = WorkoutRepositoryImpl(utility: graphQLUtility);
     userRepo = UserRepositoryImpl(utility: graphQLUtility);
@@ -98,10 +101,11 @@ class MyApp extends StatelessWidget {
   /// - we need to separate this out into its own async function because the shared preferences needed to construct
   /// the auth manager is obtained async as well
   Future handleSignIn(BuildContext context) async {
-    authManager.handleSignIn().catchError((e) {
+    // cyclical dependency, but unavoidable
+    authManager.handleSignIn(graphQLUtility).catchError((e) {
       Fluttertoast.showToast(
         msg: "error signing in $e",
-        toastLength: Toast.LENGTH_SHORT,
+        toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
       );
     });
