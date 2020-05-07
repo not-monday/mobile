@@ -32,10 +32,8 @@ class AuthScreen extends StatelessWidget {
   /// begins the interactive sign on process
   _beginSignIn(AuthManager authManager, GraphQLUtility graphQLUtility, BuildContext context) {
     authManager.initialSignIn(graphQLUtility).catchError((e) {
-      log("error signing in $e");
-
       Fluttertoast.showToast(
-        msg: "error signing in $e",
+        msg: "There was an error signing in",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
       );

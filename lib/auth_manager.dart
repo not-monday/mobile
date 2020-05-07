@@ -13,6 +13,7 @@ import 'package:stronk/redux/reducer/app_reducer.dart';
 
 const KEY_SIGNED_IN = "user_signed_in";
 
+const KEY_ACCOUNT_ID = "account.id";
 const KEY_ACCOUNT_NAME = "account.name";
 const KEY_ACCOUNT_EMAIL = "account.email";
 const KEY_ACCESS_TOKEN = "account.uid";
@@ -30,12 +31,8 @@ class AuthManager {
   SharedPreferences sharedPrefs;
   Store store;
 
-  AuthManager({
-    @required this.googleSignIn,
-    @required this.firebaseAuth,
-    @required this.sharedPrefs,
-    @required this.store
-  });
+  AuthManager(
+      {@required this.googleSignIn, @required this.firebaseAuth, @required this.sharedPrefs, @required this.store});
 
   /// only called for first time sign in
   /// - initiates interactive sign on to obtain a google user and converts it
@@ -56,40 +53,44 @@ class AuthManager {
     );
 
     var authResult = await firebaseAuth.signInWithCredential(googleSignInCredentials);
-    var idToken = await authResult.user.getIdToken();
-    var credentials = Credentials(accessToken: googleAuth.accessToken, idToken: idToken.token);
+    final user = authResult.user;
+    var credentials = Credentials(accessToken: googleAuth.accessToken, idToken: (await user.getIdToken()).token);
 
     // create account on server and store credentials locally
-    var account = await createAccountOnServer(util, authResult.user.displayName, authResult.user.email, credentials);
-    _setCurrentAccount(account);
-
-    store.dispatch(LoginCompletedAction(currentAccount: account));
+    var account = await createAccountOnServer(util, user.displayName, user.email, credentials, user.uid);
+    if (account != null) {
+      _setCurrentAccount(account);
+      store.dispatch(LoginCompletedAction(currentAccount: account));
+    }
     return account;
   }
 
-  Future<Account> createAccountOnServer(GraphQLUtility util, String name, String email, Credentials credentials) async {
+  Future<Account> createAccountOnServer(
+      GraphQLUtility util, String name, String email, Credentials credentials, String uid) async {
     // mutation request to create the account on the server
     final options = MutationOptions(
       documentNode: gql(createUser(name, name, email)),
     );
 
-//    return Account(
-//      name: name,
-//      username: name,
-//      email: email,
-//      credentials: credentials);
-
     // need to set the token using the firebase account before accessing the client to create the user
     util.updateIdToken(credentials.idToken);
     final result = await util.client.mutate(options);
     if (result.hasException) {
-      // TODO check if account already created
-      // TODO handle failure flow
       log("error creating user ${result.exception}");
+
+      // TODO ugly rn but will consolidate error handling once it's resolved serverside
+      // ignore exception for account already created
+      if (result.exception.graphqlErrors.first.toString().startsWith("409")) {
+        // TODO add "welcome back" message
+        return Account(id: uid, name: name, username: name, email: email, credentials: credentials);
+      } else {
+        return null;
+      }
     }
 
     final createdUser = result.data["CreateUser"]["user"];
     return Account(
+        id: createdUser["id"],
         name: createdUser["name"],
         username: createdUser["username"],
         email: createdUser["email"],
@@ -97,6 +98,7 @@ class AuthManager {
   }
 
   Account get currentAccount {
+    final id = sharedPrefs.getString(KEY_ACCOUNT_ID);
     final name = sharedPrefs.getString(KEY_ACCOUNT_NAME);
     final email = sharedPrefs.getString(KEY_ACCOUNT_EMAIL);
     final accessToken = sharedPrefs.getString(KEY_ACCESS_TOKEN);
@@ -104,10 +106,15 @@ class AuthManager {
 
     if (accessToken == null || idToken == null) return null;
     return Account(
-        name: name, username: name, email: email, credentials: Credentials(accessToken: accessToken, idToken: idToken));
+        id: id,
+        name: name,
+        username: name,
+        email: email,
+        credentials: Credentials(accessToken: accessToken, idToken: idToken));
   }
 
   Future _setCurrentAccount(Account account) async {
+    sharedPrefs.setString(KEY_ACCOUNT_ID, account.id);
     sharedPrefs.setString(KEY_ACCOUNT_NAME, account.name);
     sharedPrefs.setString(KEY_ACCOUNT_EMAIL, account.email);
 
@@ -135,8 +142,10 @@ class Account {
   String name;
   String email;
   String username;
+  String id;
 
   Account({
+    @required this.id,
     @required this.credentials,
     @required this.name,
     @required this.email,
