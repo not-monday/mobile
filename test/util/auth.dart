@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:graphql/client.dart';
 import 'package:mockito/mockito.dart';
+import 'package:redux/redux.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stronk/api/graphql.dart';
 import 'package:stronk/auth_manager.dart';
@@ -17,6 +18,7 @@ void main() {
   MockFirebaseUser mockFirebaseUser;
   MockGraphQLUtil mockGraphQLUtil;
   MockAuthResult mockAuthResult;
+  MockStore mockStore;
 
   AuthManager authManager;
 
@@ -31,7 +33,7 @@ void main() {
     mockAuthResult = MockAuthResult();
 
     authManager =
-        AuthManager(googleSignIn: mockGoogleSignIn, firebaseAuth: mockFirebaseAuth, sharedPrefs: mockSharedPreferences);
+        AuthManager(googleSignIn: mockGoogleSignIn, firebaseAuth: mockFirebaseAuth, sharedPrefs: mockSharedPreferences, store: null);
 
     var mockClient = MockGraphQLClient();
     var mockQueryResult = MockQueryResult();
@@ -107,3 +109,5 @@ class MockIdTokenResult extends Mock implements IdTokenResult {}
 class MockGraphQLClient extends Mock implements GraphQLClient {}
 
 class MockQueryResult extends Mock implements QueryResult {}
+
+class MockStore extends Mock implements Store {}

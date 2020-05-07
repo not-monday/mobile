@@ -5,9 +5,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:graphql/client.dart';
+import 'package:redux/redux.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stronk/api/graphql.dart';
 import 'package:stronk/api/graphql/auth.dart';
+import 'package:stronk/redux/reducer/app_reducer.dart';
+
+const KEY_SIGNED_IN = "user_signed_in";
 
 const KEY_ACCOUNT_NAME = "account.name";
 const KEY_ACCOUNT_EMAIL = "account.email";
@@ -16,40 +20,22 @@ const KEY_ID_TOKEN = "account.uid";
 
 /// manages authentication and maintains the current user account
 class AuthManager {
-  StreamController<Account> _currentAccountController = StreamController.broadcast();
-
-  Stream<Account> get currentAccount {
-    return _currentAccountController.stream;
+  bool get isSignedIn {
+    return sharedPrefs.containsKey(KEY_SIGNED_IN) && sharedPrefs.getBool(KEY_SIGNED_IN);
   }
 
   // injected deps
   GoogleSignIn googleSignIn;
   FirebaseAuth firebaseAuth;
   SharedPreferences sharedPrefs;
+  Store store;
 
   AuthManager({
     @required this.googleSignIn,
     @required this.firebaseAuth,
     @required this.sharedPrefs,
+    @required this.store
   });
-
-  /// handles the sign in of a user (MUST BE CALLED FOR EVERY SESSION)
-  /// First checks if credentials have been cached (stored in local prefs).
-  /// If not, it'll start the Firebase Auth interactive sign in process to obtain the credentials
-  ///
-  /// Once credentials have been obtained, we perform the firebase sign in process to obtain an instance
-  /// of the firebase user and notify observers via the stream
-  ///
-  Future<void> handleSignIn(GraphQLUtility util) async {
-    // first try to get current account info from shared pref
-    var account = await _getCurrentAccount();
-    // user hasn't logged in the app
-    if (account == null) {
-      account = await initialSignIn(util);
-    }
-
-    _currentAccountController.add(account);
-  }
 
   /// only called for first time sign in
   /// - initiates interactive sign on to obtain a google user and converts it
@@ -72,33 +58,37 @@ class AuthManager {
     var authResult = await firebaseAuth.signInWithCredential(googleSignInCredentials);
     var idToken = await authResult.user.getIdToken();
     var credentials = Credentials(accessToken: googleAuth.accessToken, idToken: idToken.token);
-    // store credentials locally for later use
+
+    // create account on server and store credentials locally
     var account = await createAccountOnServer(util, authResult.user.displayName, authResult.user.email, credentials);
     _setCurrentAccount(account);
 
+    store.dispatch(LoginCompletedAction(currentAccount: account));
     return account;
   }
 
   Future<Account> createAccountOnServer(GraphQLUtility util, String name, String email, Credentials credentials) async {
     // mutation request to create the account on the server
     final options = MutationOptions(
-      documentNode: gql(CREATE_USER),
-      variables: <String, dynamic>{
-        "name": name,
-        "username": name,
-        "email": email,
-      },
+      documentNode: gql(createUser(name, name, email)),
     );
 
-    final result = await util.temporaryClient(credentials.idToken).mutate(options);
+//    return Account(
+//      name: name,
+//      username: name,
+//      email: email,
+//      credentials: credentials);
+
+    // need to set the token using the firebase account before accessing the client to create the user
+    util.updateIdToken(credentials.idToken);
+    final result = await util.client.mutate(options);
     if (result.hasException) {
       // TODO check if account already created
       // TODO handle failure flow
-      log(result.exception.toString());
+      log("error creating user ${result.exception}");
     }
 
-
-    final createdUser = result.data["user"];
+    final createdUser = result.data["CreateUser"]["user"];
     return Account(
         name: createdUser["name"],
         username: createdUser["username"],
@@ -106,7 +96,7 @@ class AuthManager {
         credentials: credentials);
   }
 
-  Future<Account> _getCurrentAccount() async {
+  Account get currentAccount {
     final name = sharedPrefs.getString(KEY_ACCOUNT_NAME);
     final email = sharedPrefs.getString(KEY_ACCOUNT_EMAIL);
     final accessToken = sharedPrefs.getString(KEY_ACCESS_TOKEN);
@@ -123,6 +113,7 @@ class AuthManager {
 
     sharedPrefs.setString(KEY_ACCESS_TOKEN, account.credentials.accessToken);
     sharedPrefs.setString(KEY_ID_TOKEN, account.credentials.idToken);
+    sharedPrefs.setBool(KEY_SIGNED_IN, true);
   }
 }
 

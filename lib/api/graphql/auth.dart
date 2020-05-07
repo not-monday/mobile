@@ -1,5 +1,6 @@
-const String CREATE_USER = r"""
-  mutation test {
+String createUser(String name, String username, String email) => """
+  mutation CreateUser 
+   {
     createUser(
       name: "$name",
       username: "$username",

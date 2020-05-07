@@ -24,6 +24,8 @@ class NavigationMiddleware extends MiddlewareClass<AppState> {
   void call(Store<AppState> store, action, NextDispatcher next) {
     if (action is NavigationPush) {
         navigatorKey.currentState.pushNamed('/' + action.path);
+    } else {
+      next(action);
     }
   }
 

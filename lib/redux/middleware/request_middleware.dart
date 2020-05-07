@@ -22,7 +22,7 @@ class RequestMiddleware extends MiddlewareClass<AppState> {
     } if (action is RetrieveWorkoutAction) {
       _retrieveWorkout(store, next);
     } else {
-      print("action not passed through " + action.toString());
+      print("$action action passed through request middleware");
       next(action);
     }
   }
