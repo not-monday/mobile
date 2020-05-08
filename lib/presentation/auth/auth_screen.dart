@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,18 +12,24 @@ class AuthScreen extends StatelessWidget {
     final graphQLUtil = RepositoryProvider.of<GraphQLUtility>(context);
 
     return Scaffold(
-        body: Column(
-      children: <Widget>[
-        Text("Welcome to stronk!"),
-        MaterialButton(
-          child: Text("Login"),
-          onPressed: () => _beginSignIn(
-            authManager,
-            graphQLUtil,
-            context,
-          ),
-        )
-      ],
+        body: Container(
+      width: double.infinity,
+      height: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text("Welcome to stronk!"),
+          RaisedButton(
+            child: Text("Login"),
+            onPressed: () => _beginSignIn(
+              authManager,
+              graphQLUtil,
+              context,
+            ),
+          )
+        ],
+      ),
     ));
   }
 
