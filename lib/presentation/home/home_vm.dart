@@ -7,33 +7,40 @@ import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/redux/middleware/navigation_middleware.dart';
 import 'package:stronk/redux/state/app_state.dart';
 
+import '../../auth_manager.dart';
+
 @sealed
 abstract class HomeEvent {}
 class ViewProgram implements HomeEvent {}
 class ViewWorkout implements HomeEvent {}
 class ViewExercise implements HomeEvent {}
 
-class _HomeState {
+class HomeState {
+  String userDisplayName;
 
+  HomeState({
+    @required this.userDisplayName
+  });
 }
 
-class HomeVM extends Bloc<HomeEvent, _HomeState> {
+class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final Store<AppState> store;
   final User user;
   final Program program;
+  final Account account;
 
-  var _state = _HomeState();
-
-  HomeVM({
+  HomeBloc({
     @required this.store,
     @required this.user,
+    @required this.account,
     @required this.program
   });
 
-  factory HomeVM.create(Store<AppState> store) {
-    return HomeVM(
+  factory HomeBloc.create(Store<AppState> store) {
+    return HomeBloc(
         store : store,
         user: store.state.user,
+        account : store.state.account,
         program: store.state.currentProgram
     );
   }
@@ -49,11 +56,13 @@ class HomeVM extends Bloc<HomeEvent, _HomeState> {
   }
 
   @override
-  _HomeState get initialState => _state;
+  HomeState get initialState => HomeState(
+    userDisplayName: account.name
+  );
 
   @override
-  Stream<_HomeState> mapEventToState(HomeEvent event) async* {
-    yield _state;
+  Stream<HomeState> mapEventToState(HomeEvent event) async* {
+    yield state;
   }
 }
 

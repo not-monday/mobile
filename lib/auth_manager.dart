@@ -32,7 +32,9 @@ class AuthManager {
   Store store;
 
   AuthManager(
-      {@required this.googleSignIn, @required this.firebaseAuth, @required this.sharedPrefs, @required this.store});
+      {@required this.googleSignIn, @required this.firebaseAuth, @required this.sharedPrefs, @required this.store}) {
+    store.dispatch(LoadingCompletedAction(currentAccount: _currentAccount));
+  }
 
   /// only called for first time sign in
   /// - initiates interactive sign on to obtain a google user and converts it
@@ -80,7 +82,7 @@ class AuthManager {
 
       // TODO ugly rn but will consolidate error handling once it's resolved serverside
       // ignore exception for account already created
-      if (result.exception.graphqlErrors.first.toString().startsWith("409")) {
+      if (result.exception != null && result.exception.graphqlErrors.first.toString().startsWith("409")) {
         // TODO add "welcome back" message
         return Account(id: uid, name: name, username: name, email: email, credentials: credentials);
       } else {
@@ -88,7 +90,7 @@ class AuthManager {
       }
     }
 
-    final createdUser = result.data["CreateUser"]["user"];
+    final createdUser = result.data["createUser"]["user"];
     return Account(
         id: createdUser["id"],
         name: createdUser["name"],
@@ -97,7 +99,7 @@ class AuthManager {
         credentials: credentials);
   }
 
-  Account get currentAccount {
+  Account get _currentAccount {
     final id = sharedPrefs.getString(KEY_ACCOUNT_ID);
     final name = sharedPrefs.getString(KEY_ACCOUNT_NAME);
     final email = sharedPrefs.getString(KEY_ACCOUNT_EMAIL);

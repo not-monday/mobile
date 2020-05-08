@@ -56,13 +56,9 @@ class MyApp extends StatelessWidget {
     // initialize the future outsize of the future builder
     var authManagerFuture = initializeAuthManager();
 
-    return FutureBuilder<AuthManager>(
+    return FutureBuilder<void>(
       future: authManagerFuture,
-      builder: (BuildContext context, AsyncSnapshot<AuthManager> snapshot) {
-        var authManagerSnapshot = snapshot.data;
-        if (authManagerSnapshot != null)
-          store.dispatch(LoadingCompletedAction(currentAccount: authManager.currentAccount));
-
+      builder: (BuildContext context, AsyncSnapshot<void> _) {
         return StoreProvider(
             store: store, child: MultiRepositoryProvider(providers: repositoryProviders, child: buildApp()));
       },
@@ -94,8 +90,8 @@ class MyApp extends StatelessWidget {
   /// We only need this async method because we need to wait for the sharedPrefs to resolve before creating the auth
   /// manager
   /// TODO consider converting auth manager init to static async
-  Future<AuthManager> initializeAuthManager() async {
-    var futureConfig = await initializeConfig();
+  Future<void> initializeAuthManager() async {
+    await initializeConfig();
     authManager = AuthManager(
         googleSignIn: _googleSignIn,
         firebaseAuth: _auth,
@@ -106,7 +102,5 @@ class MyApp extends StatelessWidget {
     workoutRepo = WorkoutRepositoryImpl(utility: graphQLUtility);
     userRepo = UserRepositoryImpl(utility: graphQLUtility);
     settingsRepo = SettingsRepositoryImpl();
-
-    return authManager;
   }
 }
