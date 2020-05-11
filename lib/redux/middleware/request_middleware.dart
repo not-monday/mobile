@@ -7,7 +7,7 @@ import 'package:stronk/redux/state/app_state.dart';
 import 'package:stronk/api/user_repo.dart';
 
 class RequestMiddleware extends MiddlewareClass<AppState> {
-  UserRepo userRepo;
+  UserRepositoryImpl userRepo;
   WorkoutRepository workoutRepo;
 
   RequestMiddleware(this.userRepo, this.workoutRepo);
@@ -22,7 +22,7 @@ class RequestMiddleware extends MiddlewareClass<AppState> {
     } if (action is RetrieveWorkoutAction) {
       _retrieveWorkout(store, next);
     } else {
-      print("action not passed through " + action.toString());
+      print("$action action passed through request middleware");
       next(action);
     }
   }

@@ -77,3 +77,6 @@
 
 # firebase config
 google-services.json
+
+# config
+assets/config.yaml

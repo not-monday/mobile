@@ -1,15 +1,21 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:stronk/domain/model/workout.dart';
+
+import 'graphql.dart';
 
 abstract class WorkoutRepository {
   Future<Program> retrieveProgram();
-
   Future<Workout> retrieveWorkout();
 }
 
 class WorkoutRepositoryImpl implements WorkoutRepository {
+  GraphQLUtility utility;
+
   static final random = Random(1);
+
+  WorkoutRepositoryImpl({@required GraphQLUtility utility});
 
   @override
   Future<Program> retrieveProgram() async {

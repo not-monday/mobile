@@ -22,7 +22,11 @@ class _StronkHomePage extends State<StronkHomePage> {
   @override
   Widget build(BuildContext context) => StoreConnector<AppState, StronkHomeVM>(
     converter: (Store<AppState> store) => StronkHomeVM.create(store),
-    builder: (BuildContext context, StronkHomeVM stronkHomeVM)=> Scaffold(
+    builder: _buildUI
+  );
+
+  Widget _buildUI(BuildContext context, StronkHomeVM stronkHomeVM) {
+    return Scaffold(
       body: Center(
         child : navPages[_selectedIndex]
       ),
@@ -34,8 +38,8 @@ class _StronkHomePage extends State<StronkHomePage> {
           icon : new Icon(getIcon(nav)),
         )).toList(),
       )
-    ),
-  );
+    );
+  }
 
   _selectNavigation(int selected) {
     setState(() {

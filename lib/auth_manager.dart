@@ -1,71 +1,135 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:graphql/client.dart';
+import 'package:redux/redux.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stronk/api/graphql.dart';
+import 'package:stronk/api/graphql/auth.dart';
+import 'package:stronk/redux/reducer/app_reducer.dart';
+
+const KEY_SIGNED_IN = "user_signed_in";
+
+const KEY_ACCOUNT_ID = "account.id";
+const KEY_ACCOUNT_NAME = "account.name";
+const KEY_ACCOUNT_EMAIL = "account.email";
+const KEY_ACCESS_TOKEN = "account.uid";
+const KEY_ID_TOKEN = "account.uid";
 
 /// manages authentication and maintains the current user account
 class AuthManager {
-  FirebaseUser currentUser;
+  bool get isSignedIn {
+    return sharedPrefs.containsKey(KEY_SIGNED_IN) && sharedPrefs.getBool(KEY_SIGNED_IN);
+  }
 
   // injected deps
   GoogleSignIn googleSignIn;
   FirebaseAuth firebaseAuth;
   SharedPreferences sharedPrefs;
+  Store store;
 
-  AuthManager({
-    @required this.googleSignIn,
-    @required this.firebaseAuth,
-    @required this.sharedPrefs,
-  });
-
-  Future<void> handleSignIn() async {
-    // first try to get current account info from shared pref
-    _getCurrentCredentials().then((existingCredentials) async {
-      var credentials = existingCredentials;
-
-      // user hasn't logged in on the app
-      if (existingCredentials == null) {
-        // interactive sign 
-        var googleUser = await googleSignIn.signIn();
-        if (googleUser == null) {
-          throw SignInException(message: "Error signing in");
-        }
-        final googleAuth = await googleUser.authentication;
-        // store credentials locally for later use
-        credentials = Credentials(accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
-        _setCurrentCredentials(credentials);
-      }
-
-      // build auth provider credentials to sign in
-      var googleCredentials = GoogleAuthProvider.getCredential(
-        accessToken: credentials.accessToken,
-        idToken: credentials.idToken,
-      );
-
-      currentUser = (await firebaseAuth.signInWithCredential(googleCredentials)).user;
-    });
+  AuthManager(
+      {@required this.googleSignIn, @required this.firebaseAuth, @required this.sharedPrefs, @required this.store}) {
+    store.dispatch(LoadingCompletedAction(currentAccount: _currentAccount));
   }
 
-  Future<Credentials> _getCurrentCredentials() async {
+  /// only called for first time sign in
+  /// - initiates interactive sign on to obtain a google user and converts it
+  /// into an `account` to be stored
+  /// - creates an account on server
+  Future<Account> initialSignIn(GraphQLUtility util) async {
+    // start the interactive sign process
+    var googleUser = await googleSignIn.signIn();
+    if (googleUser == null) {
+      throw SignInException(message: "Error signing in");
+    }
+    final googleAuth = await googleUser.authentication;
+
+    // build auth provider credentials to sign in
+    var googleSignInCredentials = GoogleAuthProvider.getCredential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    var authResult = await firebaseAuth.signInWithCredential(googleSignInCredentials);
+    final user = authResult.user;
+    var credentials = Credentials(accessToken: googleAuth.accessToken, idToken: (await user.getIdToken()).token);
+
+    // create account on server and store credentials locally
+    var account = await createAccountOnServer(util, user.displayName, user.email, credentials, user.uid);
+    if (account != null) {
+      _setCurrentAccount(account);
+      store.dispatch(LoginCompletedAction(currentAccount: account));
+    }
+    return account;
+  }
+
+  Future<Account> createAccountOnServer(
+      GraphQLUtility util, String name, String email, Credentials credentials, String uid) async {
+    // mutation request to create the account on the server
+    final options = MutationOptions(
+      documentNode: gql(createUser(name, name, email)),
+    );
+
+    // need to set the token using the firebase account before accessing the client to create the user
+    util.updateIdToken(credentials.idToken);
+    final result = await util.client.mutate(options);
+    if (result.hasException) {
+      log("error creating user ${result.exception}");
+
+      // TODO ugly rn but will consolidate error handling once it's resolved serverside
+      // ignore exception for account already created
+      if (result.exception != null && result.exception.graphqlErrors.first.toString().startsWith("409")) {
+        // TODO add "welcome back" message
+        return Account(id: uid, name: name, username: name, email: email, credentials: credentials);
+      } else {
+        return null;
+      }
+    }
+
+    final createdUser = result.data["createUser"]["user"];
+    return Account(
+        id: createdUser["id"],
+        name: createdUser["name"],
+        username: createdUser["username"],
+        email: createdUser["email"],
+        credentials: credentials);
+  }
+
+  Account get _currentAccount {
+    final id = sharedPrefs.getString(KEY_ACCOUNT_ID);
+    final name = sharedPrefs.getString(KEY_ACCOUNT_NAME);
+    final email = sharedPrefs.getString(KEY_ACCOUNT_EMAIL);
     final accessToken = sharedPrefs.getString(KEY_ACCESS_TOKEN);
     final idToken = sharedPrefs.getString(KEY_ID_TOKEN);
 
     if (accessToken == null || idToken == null) return null;
-    return Credentials(accessToken: accessToken, idToken: idToken);
+    return Account(
+        id: id,
+        name: name,
+        username: name,
+        email: email,
+        credentials: Credentials(accessToken: accessToken, idToken: idToken));
   }
 
-  Future<Credentials> _setCurrentCredentials(Credentials credentials) async {
-    sharedPrefs.setString(KEY_ACCESS_TOKEN, credentials.accessToken);
-    sharedPrefs.setString(KEY_ID_TOKEN, credentials.idToken);
+  Future _setCurrentAccount(Account account) async {
+    sharedPrefs.setString(KEY_ACCOUNT_ID, account.id);
+    sharedPrefs.setString(KEY_ACCOUNT_NAME, account.name);
+    sharedPrefs.setString(KEY_ACCOUNT_EMAIL, account.email);
+
+    sharedPrefs.setString(KEY_ACCESS_TOKEN, account.credentials.accessToken);
+    sharedPrefs.setString(KEY_ID_TOKEN, account.credentials.idToken);
+    sharedPrefs.setBool(KEY_SIGNED_IN, true);
   }
 }
-
-const KEY_ACCESS_TOKEN = "account.uid";
-const KEY_ID_TOKEN = "account.uid";
 
 class Credentials {
   String accessToken;
   String idToken;
+
   Credentials({this.accessToken, this.idToken});
 }
 
@@ -73,4 +137,20 @@ class SignInException implements Exception {
   String message;
 
   SignInException({@required this.message});
+}
+
+class Account {
+  Credentials credentials;
+  String name;
+  String email;
+  String username;
+  String id;
+
+  Account({
+    @required this.id,
+    @required this.credentials,
+    @required this.name,
+    @required this.email,
+    @required this.username,
+  });
 }

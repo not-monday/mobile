@@ -9,7 +9,7 @@ class WorkoutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-    builder: (context) => WorkoutVM(
+    create: (context) => WorkoutVM(
         workoutRepo : RepositoryProvider.of<WorkoutRepository>(context),
         workout: null
     ),
@@ -31,7 +31,7 @@ class WorkoutPage extends StatelessWidget {
           )
         )
       ),
-    ), create: (BuildContext context) {},
+    ),
   );
 
   Widget renderContent(WorkoutState workoutState) {
