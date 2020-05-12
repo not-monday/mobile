@@ -13,7 +13,7 @@ class EditWorkoutCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+      margin: EdgeInsets.symmetric(vertical: 2, horizontal: 5),
       child: InkWell(
         onTap: () => {
           Navigator.push(
@@ -25,11 +25,21 @@ class EditWorkoutCard extends StatelessWidget {
                       bloc: bloc)))
         },
         child: Card(
-          child: Text("$programName \n"
-              "${workout.id}\n"
-              "${workout.description}\n"
-              "${workout.workoutExercises}\n"),
-        ),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+              ListTile(
+                trailing: new IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () =>
+                        {bloc.add(new EditProgramNameEvent("Changed name"))}),
+              ),
+              Text("$programName \n"
+                  "${workout.id}\n"
+                  "${workout.description}\n"
+                  "${workout.workoutExercises}\n")
+            ])),
       ),
     );
   }

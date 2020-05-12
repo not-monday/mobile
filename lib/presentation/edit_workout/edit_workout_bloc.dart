@@ -25,12 +25,21 @@ abstract class _Event {}
 
 class InitEvent implements _Event {}
 
-class EditWorkoutEvent implements _Event {
+class EditWorkoutSetsRepsEvent implements _Event {
   ParamContainer paramContainer;
   int index;
 
-  EditWorkoutEvent(this.paramContainer, this.index);
+  EditWorkoutSetsRepsEvent(this.paramContainer, this.index);
 }
+
+class EditProgramNameEvent implements _Event {
+  // Once the schema supports more than one program
+  //String programId;
+  String newName;
+
+  EditProgramNameEvent(this.newName);
+}
+
 
 class EditWorkoutBloc extends Bloc<_Event, EditWorkoutState> {
   final WorkoutRepository workoutRepo;
@@ -43,9 +52,11 @@ class EditWorkoutBloc extends Bloc<_Event, EditWorkoutState> {
     var newState = state;
     if (event is InitEvent) {
       newState = await handleInit().catchError((error) => print(error));
-    } else if (event is EditWorkoutEvent) {
+    } else if (event is EditWorkoutSetsRepsEvent) {
       newState = await handleEditWorkout(event.paramContainer, event.index)
           .catchError((error) => print(error));
+    } else if(event is EditProgramNameEvent) {
+      newState = await handleEditProgramName(event.newName);
     }
 
     yield newState;
@@ -116,5 +127,17 @@ class EditWorkoutBloc extends Bloc<_Event, EditWorkoutState> {
     editProgram = new Program(name: programRef.name, workouts: workouts);
 
     return new EditWorkoutState(programRef: editProgram, workoutRef: workouts);
+  }
+
+  handleEditProgramName(String newName) {
+    if(state.programRef == null) {
+      return null;
+    }
+
+    final editedProgram = new Program(name: newName, workouts: state.programRef.workouts);
+    return new EditWorkoutState(
+      programRef : editedProgram,
+      workoutRef : editedProgram.workouts
+    );
   }
 }
