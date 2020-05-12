@@ -35,10 +35,16 @@ class EditWorkoutCard extends StatelessWidget {
                     onPressed: () =>
                         {bloc.add(new EditProgramNameEvent("Changed name"))}),
               ),
-              Text("$programName \n"
-                  "${workout.id}\n"
-                  "${workout.description}\n"
-                  "${workout.workoutExercises}\n")
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  child :  Text("$programName \n"
+                      "${workout.name}\n"
+                      "${workout.id}\n"
+                      "${workout.description}\n"
+                      "${workout.workoutExercises}\n")
+                )
+              ),
             ])),
       ),
     );
