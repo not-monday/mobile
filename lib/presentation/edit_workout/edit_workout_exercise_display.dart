@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stronk/domain/model/workout.dart';
-import 'package:stronk/presentation/component/workout_exercise_card.dart';
+import 'package:stronk/presentation/edit_workout/workout_exercise_card.dart';
 
 import 'edit_workout_bloc.dart';
 

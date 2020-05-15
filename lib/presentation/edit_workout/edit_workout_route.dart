@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:stronk/api/workout_repo.dart';
-import 'package:stronk/presentation/component/edit_workout_card.dart';
+import 'package:stronk/presentation/edit_workout/edit_workout_card.dart';
 import 'package:stronk/presentation/edit_workout/edit_workout_bloc.dart';
 
 class EditWorkoutPage extends StatelessWidget {

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stronk/domain/constants.dart' as Constants;
 import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/presentation/edit_workout/edit_workout_bloc.dart';
 import 'package:stronk/presentation/edit_workout/edit_workout_exerciseSetDisplay.dart';
@@ -46,8 +47,8 @@ class WorkoutExerciseCard extends StatelessWidget {
                                   child: FlatButton(
                                     child: Text("Edit Workout Description"),
                                     onPressed: () => {
-                                      bloc.add(new EditWorkoutDescriptionEvent(
-                                          workoutId, "new description"))
+                                      bloc.add(new EditWorkoutEvent(
+                                          workoutId: workoutId, editAction : Constants.EDIT_WORKOUT_DESCRIPTION, newValue: "new description"))
                                     },
                                   )),
                               PopupMenuItem<Options>(
@@ -55,8 +56,8 @@ class WorkoutExerciseCard extends StatelessWidget {
                                   child: FlatButton(
                                       child: Text("Edit Workout Name"),
                                       onPressed: () => {
-                                            bloc.add(new EditWorkoutNameEvent(
-                                                workoutId, "new workout Name"))
+                                            bloc.add(new EditWorkoutEvent(
+                                               workoutId: workoutId, editAction: Constants.EDIT_WORKOUT_NAME, newValue : "new workout Name"))
                                           }))
                             ]),
                   ),

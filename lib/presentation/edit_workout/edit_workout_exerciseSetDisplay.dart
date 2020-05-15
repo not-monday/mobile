@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stronk/domain/model/workout.dart';
-import 'package:stronk/presentation/edit_workout/ParamContainer.dart';
+import 'package:stronk/presentation/edit_workout/param_container.dart';
 
 import 'edit_workout_bloc.dart';
 
@@ -30,8 +30,12 @@ class WorkoutExercisesSetPage extends StatelessWidget {
                     "$workoutExerciseId,\n"
                     "${exerciseSet[index]}"),
                 onTap: () => {
-                  bloc.add(new EditWorkoutSetsRepsEvent(
-                      new ParamContainer(20, 10, workoutId, workoutExerciseId),
+                  bloc.add(new EditWorkoutExerciseSetsRepsEvent(
+                      new ParamContainer(
+                          newWeight: 20,
+                          newRepCount: 10,
+                          workoutId: workoutId,
+                          workoutExerciseId: workoutExerciseId),
                       index))
                 },
               ),
