@@ -30,7 +30,7 @@ class WorkoutExercisesSetPage extends StatelessWidget {
                     "$workoutExerciseId,\n"
                     "${exerciseSet[index]}"),
                 onTap: () => {
-                  bloc.add(new EditWorkoutSetsRepsEvent(
+                  bloc.add(new EditWorkoutExerciseSetsRepsEvent(
                       new ParamContainer(20, 10, workoutId, workoutExerciseId),
                       index))
                 },
