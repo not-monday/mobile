@@ -17,7 +17,7 @@ class Workout {
   @override
   String toString() {
     return ("\nid: $id\n"
-        "id: $name\n"
+        "name: $name\n"
         "description: $description\n"
         "workoutExercises: $workoutExercises\n");
   }

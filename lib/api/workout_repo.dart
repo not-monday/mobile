@@ -19,7 +19,7 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
 
   @override
   Future<Program> retrieveProgram() async {
-    return _mockProgram();
+    return mockProgram();
   }
 
   @override
@@ -65,7 +65,7 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
     return mockWorkout;
   }
 
-  static Program _mockProgram() {
+  static Program mockProgram() {
     final mockWorkouts = [
       mockWorkout(),
       mockWorkout(),
