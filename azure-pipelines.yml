@@ -2,6 +2,9 @@
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
+variables:
+  FLUTTER_INSTALL_PATH: flutter
+  FLUTTER_TOOL_PATH: $(FLUTTER_INSTALL_PATH)/bin
 
 trigger:
 - master
@@ -10,10 +13,40 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+# region setup
+- task: Cache@2
+  inputs: 
+    key: flutter | $(FLUTTER_INSTALL_PATH)
+    path: $(FLUTTER_INSTALL_PATH)
+    cacheHitVar: FLUTTER_CACHE_RESTORED
+  displayName: Cache Flutter install
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- script: git clone https://github.com/flutter/flutter.git -b stable;
+  displayName: "Download and install Flutter"
+  condition: ne(variables.FLUTTER_CACHE_RESTORED, 'true')
+# endregion setup
+
+- task: DownloadSecureFile@1
+  name: config 
+  displayName: "Download app config"
+  inputs:
+    secureFile: 'config.yaml'
+
+- script: mv $(config.secureFilePath) assets;
+  displayName: "Move app config to project"
+
+- script: $(FLUTTER_TOOL_PATH)/flutter pub get; 
+  displayName: "Get dependencies"  
+
+# needs to be separate because flutter is installed in root of project
+# running analyze also analyzes flutter
+- script: ../$(FLUTTER_TOOL_PATH)/flutter analyze; 
+  workingDirectory: lib
+  displayName: "Run lint on lib"  
+
+- script: ../$(FLUTTER_TOOL_PATH)/flutter analyze; 
+  workingDirectory: test
+  displayName: "Run lint on test"  
+
+- script: $(FLUTTER_TOOL_PATH)/flutter test
+  displayName: "Run Flutter tests"  

@@ -1,4 +1,5 @@
 # stronk
+[![Build Status](https://dev.azure.com/kkjasoncheung/stronk-mobile/_apis/build/status/not-monday.mobile?branchName=master)](https://dev.azure.com/kkjasoncheung/stronk-mobile/_build/latest?definitionId=2&branchName=master)
 
 This is the mobile app for stronk!
 More details to come :)
