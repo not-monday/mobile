@@ -20,7 +20,8 @@ class ProgramCard extends StatelessWidget {
               title: Text(program.name),
               subtitle: Text("Week 1 out of 5"),
             ),
-            ButtonTheme.bar( // make buttons use the appropriate styles for cards
+            ButtonBarTheme( // make buttons use the appropriate styles for cards
+              data: null,
               child: ButtonBar(
                 children: <Widget>[
                   FlatButton(
@@ -35,6 +36,4 @@ class ProgramCard extends StatelessWidget {
       ),
     );
   }
-
-
 }
