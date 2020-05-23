@@ -7,7 +7,7 @@ variables:
   FLUTTER_TOOL_PATH: $(FLUTTER_INSTALL_PATH)/bin
 
 trigger:
-- master
+- "*"
 
 pool:
   vmImage: 'ubuntu-latest'
