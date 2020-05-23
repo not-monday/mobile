@@ -5,7 +5,7 @@ import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/presentation/edit_workout/edit_workout_bloc.dart';
 import 'package:stronk/presentation/edit_workout/edit_workout_exerciseSetDisplay.dart';
 
-enum Options { editWorkoutName, editWorkoutDescription }
+enum workoutOptions { editWorkoutName, editWorkoutDescription, deleteWorkout}
 
 class WorkoutExerciseCard extends StatelessWidget {
   final WorkoutExercise workoutExercise;
@@ -39,11 +39,11 @@ class WorkoutExerciseCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   ListTile(
-                    trailing: PopupMenuButton<Options>(
+                    trailing: PopupMenuButton<workoutOptions>(
                         itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<Options>>[
-                              PopupMenuItem<Options>(
-                                  value: Options.editWorkoutDescription,
+                            <PopupMenuEntry<workoutOptions>>[
+                              PopupMenuItem<workoutOptions>(
+                                  value: workoutOptions.editWorkoutDescription,
                                   child: FlatButton(
                                     child: Text("Edit Workout Description"),
                                     onPressed: () => {
@@ -51,14 +51,31 @@ class WorkoutExerciseCard extends StatelessWidget {
                                           workoutId: workoutId, editAction : Constants.EDIT_WORKOUT_DESCRIPTION, newValue: "new description"))
                                     },
                                   )),
-                              PopupMenuItem<Options>(
-                                  value: Options.editWorkoutName,
+                              PopupMenuItem<workoutOptions>(
+                                  value: workoutOptions.editWorkoutName,
                                   child: FlatButton(
                                       child: Text("Edit Workout Name"),
                                       onPressed: () => {
                                             bloc.add(new EditWorkoutEvent(
                                                workoutId: workoutId, editAction: Constants.EDIT_WORKOUT_NAME, newValue : "new workout Name"))
-                                          }))
+                                          })),
+                              PopupMenuItem<workoutOptions>(
+                                value: workoutOptions.deleteWorkout,
+                                child: FlatButton(
+                                  child: Text("Delete Workout"),
+                                  onPressed: () => {
+                                    bloc.add(new DeleteWorkoutEvent(workoutId: workoutId))
+                                  }
+                                )
+                              ),
+                              PopupMenuItem<workoutOptions>(
+                                child: FlatButton(
+                                  child: Text("Delete WorkoutExercise"),
+                                  onPressed: () => {
+                                    bloc.add(new DeleteWorkoutExerciseEvent(workoutId: workoutId, workoutExerciseId: workoutExercise.id))
+                                  },
+                                )
+                              )
                             ]),
                   ),
                   Align(

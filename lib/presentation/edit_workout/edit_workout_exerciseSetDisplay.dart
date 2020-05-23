@@ -5,6 +5,11 @@ import 'package:stronk/presentation/edit_workout/param_container.dart';
 
 import 'edit_workout_bloc.dart';
 
+enum workoutExerciseOptions {
+  editWorkoutExerciseSetsAndReps,
+  deleteWorkoutExerciseSet
+}
+
 class WorkoutExercisesSetPage extends StatelessWidget {
   final String workoutId;
   final String workoutExerciseId;
@@ -29,15 +34,36 @@ class WorkoutExercisesSetPage extends StatelessWidget {
                 title: Text("$workoutId\n"
                     "$workoutExerciseId,\n"
                     "${exerciseSet[index]}"),
-                onTap: () => {
-                  bloc.add(new EditWorkoutExerciseSetsRepsEvent(
-                      new ParamContainer(
-                          newWeight: 20,
-                          newRepCount: 10,
-                          workoutId: workoutId,
-                          workoutExerciseId: workoutExerciseId),
-                      index))
-                },
+                trailing: PopupMenuButton<workoutExerciseOptions>(
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<workoutExerciseOptions>>[
+                    PopupMenuItem<workoutExerciseOptions>(
+                      child: FlatButton(
+                          child: Text("Edit set and reps"),
+                          onPressed: () => {
+                                bloc.add(new EditWorkoutExerciseSetsRepsEvent(
+                                    new ParamContainer(
+                                        newWeight: 20,
+                                        newRepCount: 10,
+                                        workoutId: workoutId,
+                                        workoutExerciseId: workoutExerciseId),
+                                    index))
+                              }),
+                    ),
+                    PopupMenuItem<workoutExerciseOptions>(
+                        child: FlatButton(
+                            child: Text("Delete Set"),
+                            onPressed: () => {
+                                  bloc.add(new DeleteExerciseSetEvent(
+                                      index: index,
+                                      params: new ParamContainer(
+                                          workoutId: workoutId,
+                                          workoutExerciseId:
+                                              workoutExerciseId)))
+                                })
+                    )
+                  ],
+                ),
               ),
               Divider(),
             ]);
