@@ -60,8 +60,18 @@ class WorkoutExercisesSetPage extends StatelessWidget {
                                           workoutId: workoutId,
                                           workoutExerciseId:
                                               workoutExerciseId)))
-                                })
-                    )
+                                })),
+                    PopupMenuItem<workoutExerciseOptions>(
+                        child: FlatButton(
+                            child: Text("Add set"),
+                            onPressed: () => {
+                                  bloc.add(new AddSetAndRepsEvent(
+                                      params: new ParamContainer(
+                                          workoutId: workoutId,
+                                          workoutExerciseId: workoutExerciseId,
+                                          newWeight: 10,
+                                          newRepCount: 10)))
+                                }))
                   ],
                 ),
               ),
