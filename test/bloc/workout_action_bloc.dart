@@ -1,24 +1,24 @@
 import 'package:mockito/mockito.dart';
 import 'package:stronk/api/workout_repo.dart';
-import 'package:stronk/domain/model/workout.dart';
-import 'package:stronk/presentation/edit_workout/edit_workout_bloc.dart';
-import 'package:stronk/presentation/edit_workout/param_container.dart';
-import 'package:test/test.dart';
 import 'package:stronk/domain/constants.dart' as Constants;
+import 'package:stronk/domain/model/workout.dart';
+import 'package:stronk/presentation/workout_actions/param_container.dart';
+import 'package:stronk/presentation/workout_actions/workout_action_bloc.dart';
+import 'package:test/test.dart';
 
 class MockWorkoutRepo extends Mock implements WorkoutRepository {}
 
 void main() {
-  EditWorkoutBloc mockEditWorkoutBloc;
+  WorkoutActionBloc mockWorkoutActionBloc;
   WorkoutRepository mockWorkoutRepo;
 
   setUp(() {
     mockWorkoutRepo = MockWorkoutRepo();
-    mockEditWorkoutBloc = EditWorkoutBloc(workoutRepo: mockWorkoutRepo);
+    mockWorkoutActionBloc = WorkoutActionBloc(workoutRepo: mockWorkoutRepo);
   });
 
   tearDown(() {
-    mockEditWorkoutBloc.close();
+    mockWorkoutActionBloc.close();
   });
 
   test("Updated Program name", () async {
@@ -26,14 +26,14 @@ void main() {
     when(mockWorkoutRepo.retrieveProgram())
         .thenAnswer((_) => Future.value(mockProgram));
 
-    var matcher = TypeMatcher<EditWorkoutState>();
+    var matcher = TypeMatcher<WorkoutActionState>();
     var matchEndState = (_) {
-      var programName = mockEditWorkoutBloc.state.programRef.name;
+      var programName = mockWorkoutActionBloc.state.programRef.name;
       expect(programName, "new mock program");
     };
 
     expectLater(
-        mockEditWorkoutBloc,
+        mockWorkoutActionBloc,
         emitsInOrder([
           matcher.having(
               (state) => state.programRef, "initially no program ref", null),
@@ -41,7 +41,7 @@ void main() {
               "update program name", "mock program name"),
         ])).then((_) => matchEndState);
 
-    mockEditWorkoutBloc.add(EditProgramNameEvent("new mock program"));
+    mockWorkoutActionBloc.add(EditProgramNameEvent("new mock program"));
   });
 
   test("edit workout name", () async {
@@ -49,15 +49,15 @@ void main() {
     when(mockWorkoutRepo.retrieveProgram())
         .thenAnswer((_) => Future.value(mockProgram));
 
-    var matcher = TypeMatcher<EditWorkoutState>();
+    var matcher = TypeMatcher<WorkoutActionState>();
 
     var matchEndState = (_) {
-      var programName = mockEditWorkoutBloc.state.workoutRef[0].name;
+      var programName = mockWorkoutActionBloc.state.workoutRef[0].name;
       expect(programName, "new workout name");
     };
 
     expectLater(
-        mockEditWorkoutBloc,
+        mockWorkoutActionBloc,
         emitsInOrder([
           matcher.having(
               (state) => state.workoutRef, "Initial workoutRef is null", null),
@@ -65,7 +65,7 @@ void main() {
               "Initial workout name", "mock workout")
         ])).then((_) => matchEndState);
 
-    mockEditWorkoutBloc.add(EditWorkoutEvent(
+    mockWorkoutActionBloc.add(EditWorkoutEvent(
         workoutId: mockProgram.workouts[0].id,
         editAction: Constants.EDIT_WORKOUT_NAME,
         newValue: "new workout name"));
@@ -76,15 +76,15 @@ void main() {
     when(mockWorkoutRepo.retrieveProgram())
         .thenAnswer((_) => Future.value(mockProgram));
 
-    var matcher = TypeMatcher<EditWorkoutState>();
+    var matcher = TypeMatcher<WorkoutActionState>();
 
     var matchEndState = (_) {
-      var programName = mockEditWorkoutBloc.state.workoutRef[0].description;
+      var programName = mockWorkoutActionBloc.state.workoutRef[0].description;
       expect(programName, "new workout description");
     };
 
     expectLater(
-        mockEditWorkoutBloc,
+        mockWorkoutActionBloc,
         emitsInOrder([
           matcher.having(
               (state) => state.workoutRef, "Initial workoutRef is null", null),
@@ -92,7 +92,7 @@ void main() {
               "Initial workout name", "mock description")
         ])).then((_) => matchEndState);
 
-    mockEditWorkoutBloc.add(EditWorkoutEvent(
+    mockWorkoutActionBloc.add(EditWorkoutEvent(
         workoutId: mockProgram.workouts[0].id,
         editAction: Constants.EDIT_WORKOUT_DESCRIPTION,
         newValue: "new workout program"));
@@ -103,16 +103,16 @@ void main() {
     when(mockWorkoutRepo.retrieveProgram())
         .thenAnswer((_) => Future.value(mockProgram));
 
-    var matcher = TypeMatcher<EditWorkoutState>();
+    var matcher = TypeMatcher<WorkoutActionState>();
 
     var matchEndState = (_) {
-      var workoutExerciseSetAndRep = mockEditWorkoutBloc
+      var workoutExerciseSetAndRep = mockWorkoutActionBloc
           .state.workoutRef[0].workoutExercises[0].exerciseSets[0];
       expect(workoutExerciseSetAndRep, ExerciseSet(weight: 20, number: 10));
     };
 
     expectLater(
-        mockEditWorkoutBloc,
+        mockWorkoutActionBloc,
         emitsInOrder([
           matcher.having(
               (state) => state.programRef, "Initial workoutRef is null", null),
@@ -123,12 +123,12 @@ void main() {
               mockProgram.workouts[0].workoutExercises[0].exerciseSets[0]),
         ])).then((_) => matchEndState);
 
-    mockEditWorkoutBloc.add(EditWorkoutExerciseSetsRepsEvent(
-        new ParamContainer(
+    mockWorkoutActionBloc.add(new SetsAndRepsEvent(
+        params: new ParamContainer(
             workoutId: mockProgram.workouts[0].id,
             workoutExerciseId: mockProgram.workouts[0].workoutExercises[0].id,
             newRepCount: 10,
-            newWeight: 20),
-        0));
+            newWeight: 20,
+            action: Constants.EDIT_ACTION)));
   });
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stronk/presentation/component/workout_label.dart';
-import 'package:stronk/presentation/edit_workout/edit_workout_route.dart';
+import 'package:stronk/presentation/workout_actions/workout_action_route.dart';
 
 class WorkoutCard extends StatelessWidget {
   final VoidCallback viewWorkout;
@@ -32,7 +32,7 @@ class WorkoutCard extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => EditWorkoutPage()));
+                              builder: (context) => WorkoutActionPage()));
                     }),
               ),
               Column(

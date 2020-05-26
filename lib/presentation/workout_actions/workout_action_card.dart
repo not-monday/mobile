@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:stronk/domain/model/workout.dart';
-import 'package:stronk/presentation/edit_workout/edit_workout_bloc.dart';
-import 'package:stronk/presentation/edit_workout/edit_workout_exercise_display.dart';
+import 'package:stronk/presentation/workout_actions/workout_action_bloc.dart';
+import 'package:stronk/presentation/workout_actions/workout_action_exercise_display.dart';
 
-class EditWorkoutCard extends StatelessWidget {
+class WorkoutActionCard extends StatelessWidget {
   final Workout workout;
   final String programName;
-  final EditWorkoutBloc bloc;
+  final WorkoutActionBloc bloc;
 
-  EditWorkoutCard({@required this.workout, this.programName, this.bloc});
+  WorkoutActionCard({@required this.workout, this.programName, this.bloc});
 
   @override
   Widget build(BuildContext context) {
@@ -36,15 +36,13 @@ class EditWorkoutCard extends StatelessWidget {
                         {bloc.add(new EditProgramNameEvent("Changed name"))}),
               ),
               Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  child :  Text("$programName \n"
-                      "${workout.name}\n"
-                      "${workout.id}\n"
-                      "${workout.description}\n"
-                      "${workout.workoutExercises}\n")
-                )
-              ),
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                      child: Text("$programName \n"
+                          "${workout.name}\n"
+                          "${workout.id}\n"
+                          "${workout.description}\n"
+                          "${workout.workoutExercises}\n"))),
             ])),
       ),
     );

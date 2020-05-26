@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stronk/domain/constants.dart' as Constants;
 import 'package:stronk/domain/model/workout.dart';
-import 'package:stronk/presentation/edit_workout/param_container.dart';
+import 'package:stronk/presentation/workout_actions/param_container.dart';
 
-import 'edit_workout_bloc.dart';
+import 'workout_action_bloc.dart';
 
 enum workoutExerciseOptions {
   editWorkoutExerciseSetsAndReps,
@@ -14,7 +15,7 @@ class WorkoutExercisesSetPage extends StatelessWidget {
   final String workoutId;
   final String workoutExerciseId;
   final List<ExerciseSet> exerciseSet;
-  final EditWorkoutBloc bloc;
+  final WorkoutActionBloc bloc;
 
   WorkoutExercisesSetPage(
       {this.workoutId, this.workoutExerciseId, this.exerciseSet, this.bloc});
@@ -41,36 +42,39 @@ class WorkoutExercisesSetPage extends StatelessWidget {
                       child: FlatButton(
                           child: Text("Edit set and reps"),
                           onPressed: () => {
-                                bloc.add(new EditWorkoutExerciseSetsRepsEvent(
-                                    new ParamContainer(
-                                        newWeight: 20,
-                                        newRepCount: 10,
-                                        workoutId: workoutId,
-                                        workoutExerciseId: workoutExerciseId),
-                                    index))
+                                bloc.add(new SetsAndRepsEvent(
+                                  params: new ParamContainer(
+                                      newWeight: 20,
+                                      newRepCount: 10,
+                                      workoutId: workoutId,
+                                      workoutExerciseId: workoutExerciseId,
+                                      index: index,
+                                      action: Constants.EDIT_ACTION),
+                                ))
                               }),
                     ),
                     PopupMenuItem<workoutExerciseOptions>(
                         child: FlatButton(
                             child: Text("Delete Set"),
                             onPressed: () => {
-                                  bloc.add(new DeleteExerciseSetEvent(
-                                      index: index,
+                                  bloc.add(new SetsAndRepsEvent(
                                       params: new ParamContainer(
                                           workoutId: workoutId,
-                                          workoutExerciseId:
-                                              workoutExerciseId)))
+                                          workoutExerciseId: workoutExerciseId,
+                                          index: index,
+                                          action: Constants.DELETE_ACTION)))
                                 })),
                     PopupMenuItem<workoutExerciseOptions>(
                         child: FlatButton(
                             child: Text("Add set"),
                             onPressed: () => {
-                                  bloc.add(new AddSetAndRepsEvent(
+                                  bloc.add(new SetsAndRepsEvent(
                                       params: new ParamContainer(
                                           workoutId: workoutId,
                                           workoutExerciseId: workoutExerciseId,
                                           newWeight: 10,
-                                          newRepCount: 10)))
+                                          newRepCount: 10,
+                                          action: Constants.ADD_ACTION)))
                                 }))
                   ],
                 ),

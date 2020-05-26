@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stronk/domain/model/workout.dart';
-import 'package:stronk/presentation/edit_workout/workout_exercise_card.dart';
+import 'package:stronk/presentation/workout_actions/workout_exercise_card.dart';
 
-import 'edit_workout_bloc.dart';
+import 'workout_action_bloc.dart';
 
 class WorkoutExercisesPage extends StatelessWidget {
   final List<WorkoutExercise> set;
   final String workoutId;
-  final EditWorkoutBloc bloc;
+  final WorkoutActionBloc bloc;
 
   WorkoutExercisesPage({this.set, this.workoutId, this.bloc});
 

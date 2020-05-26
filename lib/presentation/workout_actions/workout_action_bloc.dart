@@ -10,11 +10,11 @@ import 'package:stronk/domain/model/workout.dart';
 
 import 'param_container.dart';
 
-class EditWorkoutState {
+class WorkoutActionState {
   final Program programRef;
   final List<Workout> workoutRef;
 
-  EditWorkoutState({@required this.programRef, this.workoutRef});
+  WorkoutActionState({@required this.programRef, this.workoutRef});
 
   @override
   String toString() {
@@ -28,12 +28,6 @@ abstract class _Event {}
 
 class InitEvent implements _Event {}
 
-class AddSetAndRepsEvent implements _Event {
-  ParamContainer params;
-
-  AddSetAndRepsEvent({this.params});
-}
-
 class DeleteWorkoutEvent implements _Event {
   String workoutId;
 
@@ -45,13 +39,6 @@ class DeleteWorkoutExerciseEvent implements _Event {
   String workoutExerciseId;
 
   DeleteWorkoutExerciseEvent({this.workoutId, this.workoutExerciseId});
-}
-
-class DeleteExerciseSetEvent implements _Event {
-  int index;
-  ParamContainer params;
-
-  DeleteExerciseSetEvent({this.index, this.params});
 }
 
 class EditWorkoutEvent implements _Event {
@@ -77,21 +64,25 @@ class EditProgramNameEvent implements _Event {
   EditProgramNameEvent(this.newName);
 }
 
-class EditWorkoutBloc extends Bloc<_Event, EditWorkoutState> {
+class SetsAndRepsEvent implements _Event {
+  ParamContainer params;
+
+  SetsAndRepsEvent({this.params});
+}
+
+class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
   final WorkoutRepository workoutRepo;
 
   @override
-  EditWorkoutState get initialState => new EditWorkoutState(programRef: null);
+  WorkoutActionState get initialState =>
+      new WorkoutActionState(programRef: null);
 
   @override
-  Stream<EditWorkoutState> mapEventToState(_Event event) async* {
+  Stream<WorkoutActionState> mapEventToState(_Event event) async* {
     var newState = state;
     try {
       if (event is InitEvent) {
         newState = await handleInit();
-      } else if (event is EditWorkoutExerciseSetsRepsEvent) {
-        newState = await handleEditWorkoutExerciseRepsAndSets(
-            event.paramContainer, event.index);
       } else if (event is EditProgramNameEvent) {
         newState = await handleEditProgramName(event.newName);
       } else if (event is EditWorkoutEvent) {
@@ -99,14 +90,11 @@ class EditWorkoutBloc extends Bloc<_Event, EditWorkoutState> {
             event.workoutId, event.editAction, event.newValue);
       } else if (event is DeleteWorkoutEvent) {
         newState = await handleDeleteWorkout(event.workoutId);
-      } else if (event is DeleteExerciseSetEvent) {
-        newState =
-            await handleDeleteExerciseSetEvent(event.index, event.params);
       } else if (event is DeleteWorkoutExerciseEvent) {
         newState = await handleDeleteWorkoutExerciseEvent(
             event.workoutId, event.workoutExerciseId);
-      } else if (event is AddSetAndRepsEvent) {
-        newState = await handleAddSetsAndRepsEvent(event.params);
+      } else if (event is SetsAndRepsEvent) {
+        newState = await handleSetsAndRepsEvent(event.params);
       }
     } catch (error) {
       print(error);
@@ -115,86 +103,29 @@ class EditWorkoutBloc extends Bloc<_Event, EditWorkoutState> {
     yield newState;
   }
 
-  EditWorkoutBloc({@required this.workoutRepo}) {
+  WorkoutActionBloc({@required this.workoutRepo}) {
     add(new InitEvent());
   }
 
-  Future<EditWorkoutState> handleInit() async {
+  Future<WorkoutActionState> handleInit() async {
     final activeWorkout = await workoutRepo.retrieveProgram();
 
-    return EditWorkoutState(
+    return WorkoutActionState(
         programRef: activeWorkout, workoutRef: activeWorkout.workouts);
   }
 
-  Future<EditWorkoutState> handleEditWorkoutExerciseRepsAndSets(
-      ParamContainer paramContainer, int index) async {
-    final programRef = state.programRef;
-    final workoutRef = state.workoutRef;
-    final editWorkoutId = paramContainer.workoutId;
-    final editWorkoutExerciseId = paramContainer.workoutExerciseId;
-    final newWeight = paramContainer.newWeight;
-    final newRepCount = paramContainer.newRepCount;
-
-    // Editing the workout list, requires mutation
-    Program editProgram;
-    Workout editWorkout;
-    WorkoutExercise editWorkoutExercise;
-    List<Workout> workouts;
-    List<WorkoutExercise> workoutExercises;
-    List<ExerciseSet> exerciseSets;
-
-    workouts =
-        workoutRef.where((workout) => workout.id != editWorkoutId).toList();
-    editWorkout =
-        workoutRef.singleWhere((workout) => workout.id == editWorkoutId);
-    editWorkoutExercise = editWorkout.workoutExercises.singleWhere(
-        (workoutExercise) => workoutExercise.id == editWorkoutExerciseId);
-    workoutExercises = editWorkout.workoutExercises
-        .where((workoutExercise) => workoutExercise.id != editWorkoutExerciseId)
-        .toList();
-    exerciseSets = editWorkoutExercise.exerciseSets
-        .map((exercise) =>
-            new ExerciseSet(weight: exercise.weight, number: exercise.number))
-        .toList();
-    exerciseSets[index] =
-        new ExerciseSet(weight: newWeight, number: newRepCount);
-
-    final indexOfEditWorkout = state.workoutRef.indexOf(editWorkout);
-    final indexOfEditExercise =
-        editWorkout.workoutExercises.indexOf(editWorkoutExercise);
-    workoutExercises.insert(
-        indexOfEditExercise,
-        new WorkoutExercise(
-            id: editWorkoutExercise.id,
-            exerciseId: editWorkoutExercise.exerciseId,
-            name: editWorkoutExercise.name,
-            exerciseSets: exerciseSets,
-            supersets: editWorkoutExercise.supersets));
-
-    editWorkout = new Workout(
-        id: editWorkout.id,
-        name: editWorkout.name,
-        workoutExercises: workoutExercises,
-        description: editWorkout.description);
-    workouts.insert(indexOfEditWorkout, editWorkout);
-
-    editProgram = new Program(name: programRef.name, workouts: workouts);
-
-    return EditWorkoutState(programRef: editProgram, workoutRef: workouts);
-  }
-
-  Future<EditWorkoutState> handleEditProgramName(String newName) async {
+  Future<WorkoutActionState> handleEditProgramName(String newName) async {
     if (state.programRef == null) {
       return null;
     }
 
     final editedProgram =
         new Program(name: newName, workouts: state.programRef.workouts);
-    return EditWorkoutState(
+    return WorkoutActionState(
         programRef: editedProgram, workoutRef: editedProgram.workouts);
   }
 
-  Future<EditWorkoutState> handleEditWorkout(
+  Future<WorkoutActionState> handleEditWorkout(
       String workoutId, String action, String newValue) async {
     if (state.programRef == null) {
       return null;
@@ -234,11 +165,11 @@ class EditWorkoutBloc extends Bloc<_Event, EditWorkoutState> {
     final updatedProgram =
         new Program(name: state.programRef.name, workouts: workouts);
 
-    return EditWorkoutState(
+    return WorkoutActionState(
         programRef: updatedProgram, workoutRef: updatedProgram.workouts);
   }
 
-  Future<EditWorkoutState> handleDeleteWorkout(String id) async {
+  Future<WorkoutActionState> handleDeleteWorkout(String id) async {
     if (state.programRef == null) {
       return null;
     } else if (state.workoutRef == []) {
@@ -248,10 +179,10 @@ class EditWorkoutBloc extends Bloc<_Event, EditWorkoutState> {
     workouts = state.workoutRef.where((workout) => workout.id != id).toList();
     final updatedProgram =
         new Program(name: state.programRef.name, workouts: workouts);
-    return EditWorkoutState(programRef: updatedProgram, workoutRef: workouts);
+    return WorkoutActionState(programRef: updatedProgram, workoutRef: workouts);
   }
 
-  Future<EditWorkoutState> handleDeleteWorkoutExerciseEvent(
+  Future<WorkoutActionState> handleDeleteWorkoutExerciseEvent(
       String workoutId, String workoutExerciseId) async {
     if (state.programRef == null) {
       return null;
@@ -281,70 +212,19 @@ class EditWorkoutBloc extends Bloc<_Event, EditWorkoutState> {
     workouts.insert(indexOfEditWorkout, editWorkout);
     final updatedProgram =
         new Program(name: state.programRef.name, workouts: workouts);
-    return EditWorkoutState(programRef: updatedProgram, workoutRef: workouts);
+    return WorkoutActionState(programRef: updatedProgram, workoutRef: workouts);
   }
 
-  Future<EditWorkoutState> handleDeleteExerciseSetEvent(
-      int index, ParamContainer params) async {
-    final programRef = state.programRef;
-    final workoutRef = state.workoutRef;
-    final editWorkoutId = params.workoutId;
-    final editWorkoutExerciseId = params.workoutExerciseId;
-
-    // Editing the workout list, requires mutation
-    Workout editWorkout;
-    WorkoutExercise editWorkoutExercise;
-    List<Workout> workouts;
-    List<WorkoutExercise> workoutExercises;
-    List<ExerciseSet> exerciseSets;
-
-    workouts =
-        workoutRef.where((workout) => workout.id != editWorkoutId).toList();
-    editWorkout =
-        workoutRef.singleWhere((workout) => workout.id == editWorkoutId);
-    editWorkoutExercise = editWorkout.workoutExercises.singleWhere(
-        (workoutExercise) => workoutExercise.id == editWorkoutExerciseId);
-    workoutExercises = editWorkout.workoutExercises
-        .where((workoutExercise) => workoutExercise.id != editWorkoutExerciseId)
-        .toList();
-    exerciseSets = editWorkoutExercise.exerciseSets
-        .map((exercise) =>
-            new ExerciseSet(weight: exercise.weight, number: exercise.number))
-        .toList();
-    exerciseSets.removeAt(index);
-
-    final indexOfEditWorkout = state.workoutRef.indexOf(editWorkout);
-    final indexOfEditExercise =
-        editWorkout.workoutExercises.indexOf(editWorkoutExercise);
-    workoutExercises.insert(
-        indexOfEditExercise,
-        new WorkoutExercise(
-            id: editWorkoutExercise.id,
-            exerciseId: editWorkoutExercise.exerciseId,
-            name: editWorkoutExercise.name,
-            exerciseSets: exerciseSets,
-            supersets: editWorkoutExercise.supersets));
-
-    editWorkout = new Workout(
-        id: editWorkout.id,
-        name: editWorkout.name,
-        workoutExercises: workoutExercises,
-        description: editWorkout.description);
-    workouts.insert(indexOfEditWorkout, editWorkout);
-
-    final editProgram = new Program(name: programRef.name, workouts: workouts);
-
-    return EditWorkoutState(programRef: editProgram, workoutRef: workouts);
-  }
-
-  Future<EditWorkoutState> handleAddSetsAndRepsEvent(
+  Future<WorkoutActionState> handleSetsAndRepsEvent(
       ParamContainer params) async {
     final programRef = state.programRef;
     final workoutRef = state.workoutRef;
     final editWorkoutId = params.workoutId;
     final editWorkoutExerciseId = params.workoutExerciseId;
+    final action = params.action;
 
     // Editing the workout list, requires mutation
+    Program editProgram;
     Workout editWorkout;
     WorkoutExercise editWorkoutExercise;
     List<Workout> workouts;
@@ -369,13 +249,29 @@ class EditWorkoutBloc extends Bloc<_Event, EditWorkoutState> {
             new ExerciseSet(weight: exercise.weight, number: exercise.number))
         .toList();
 
-    exerciseSets.add(
-        new ExerciseSet(weight: params.newWeight, number: params.newRepCount));
-
     final indexOfEditWorkout = state.workoutRef.indexOf(editWorkout);
     final indexOfEditExercise =
-    editWorkout.workoutExercises.indexOf(editWorkoutExercise);
+        editWorkout.workoutExercises.indexOf(editWorkoutExercise);
 
+    switch (action) {
+      case Constants.ADD_ACTION:
+        {
+          exerciseSets.add(new ExerciseSet(
+              weight: params.newWeight, number: params.newRepCount));
+        }
+        break;
+      case Constants.DELETE_ACTION:
+        {
+          exerciseSets.removeAt(params.index);
+        }
+        break;
+      case Constants.EDIT_ACTION:
+        {
+          exerciseSets[params.index] = new ExerciseSet(
+              weight: params.newWeight, number: params.newRepCount);
+        }
+        break;
+    }
     workoutExercises.insert(
         indexOfEditExercise,
         new WorkoutExercise(
@@ -392,8 +288,7 @@ class EditWorkoutBloc extends Bloc<_Event, EditWorkoutState> {
         description: editWorkout.description);
     workouts.insert(indexOfEditWorkout, editWorkout);
 
-    final editProgram = new Program(name: programRef.name, workouts: workouts);
-
-    return EditWorkoutState(programRef: editProgram, workoutRef: workouts);
+    editProgram = new Program(name: programRef.name, workouts: workouts);
+    return WorkoutActionState(programRef: editProgram, workoutRef: workouts);
   }
 }

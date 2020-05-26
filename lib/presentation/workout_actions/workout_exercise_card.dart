@@ -2,15 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stronk/domain/constants.dart' as Constants;
 import 'package:stronk/domain/model/workout.dart';
-import 'package:stronk/presentation/edit_workout/edit_workout_bloc.dart';
-import 'package:stronk/presentation/edit_workout/edit_workout_exerciseSetDisplay.dart';
+import 'package:stronk/presentation/workout_actions/workout_action_bloc.dart';
+import 'package:stronk/presentation/workout_actions/workout_action_exerciseSetDisplay.dart';
 
-enum workoutOptions { editWorkoutName, editWorkoutDescription, deleteWorkout}
+enum workoutOptions { editWorkoutName, editWorkoutDescription, deleteWorkout }
 
 class WorkoutExerciseCard extends StatelessWidget {
   final WorkoutExercise workoutExercise;
   final String workoutId;
-  final EditWorkoutBloc bloc;
+  final WorkoutActionBloc bloc;
 
   WorkoutExerciseCard(
       {@required this.workoutExercise,
@@ -48,7 +48,10 @@ class WorkoutExerciseCard extends StatelessWidget {
                                     child: Text("Edit Workout Description"),
                                     onPressed: () => {
                                       bloc.add(new EditWorkoutEvent(
-                                          workoutId: workoutId, editAction : Constants.EDIT_WORKOUT_DESCRIPTION, newValue: "new description"))
+                                          workoutId: workoutId,
+                                          editAction: Constants
+                                              .EDIT_WORKOUT_DESCRIPTION,
+                                          newValue: "new description"))
                                     },
                                   )),
                               PopupMenuItem<workoutOptions>(
@@ -57,25 +60,28 @@ class WorkoutExerciseCard extends StatelessWidget {
                                       child: Text("Edit Workout Name"),
                                       onPressed: () => {
                                             bloc.add(new EditWorkoutEvent(
-                                               workoutId: workoutId, editAction: Constants.EDIT_WORKOUT_NAME, newValue : "new workout Name"))
+                                                workoutId: workoutId,
+                                                editAction:
+                                                    Constants.EDIT_WORKOUT_NAME,
+                                                newValue: "new workout Name"))
                                           })),
                               PopupMenuItem<workoutOptions>(
-                                value: workoutOptions.deleteWorkout,
-                                child: FlatButton(
-                                  child: Text("Delete Workout"),
-                                  onPressed: () => {
-                                    bloc.add(new DeleteWorkoutEvent(workoutId: workoutId))
-                                  }
-                                )
-                              ),
+                                  value: workoutOptions.deleteWorkout,
+                                  child: FlatButton(
+                                      child: Text("Delete Workout"),
+                                      onPressed: () => {
+                                            bloc.add(new DeleteWorkoutEvent(
+                                                workoutId: workoutId))
+                                          })),
                               PopupMenuItem<workoutOptions>(
-                                child: FlatButton(
-                                  child: Text("Delete WorkoutExercise"),
-                                  onPressed: () => {
-                                    bloc.add(new DeleteWorkoutExerciseEvent(workoutId: workoutId, workoutExerciseId: workoutExercise.id))
-                                  },
-                                )
-                              )
+                                  child: FlatButton(
+                                child: Text("Delete WorkoutExercise"),
+                                onPressed: () => {
+                                  bloc.add(new DeleteWorkoutExerciseEvent(
+                                      workoutId: workoutId,
+                                      workoutExerciseId: workoutExercise.id))
+                                },
+                              ))
                             ]),
                   ),
                   Align(
