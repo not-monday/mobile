@@ -28,6 +28,12 @@ abstract class _Event {}
 
 class InitEvent implements _Event {}
 
+class AddWorkoutEvent implements _Event {
+  Workout workout;
+  AddWorkoutEvent({this.workout});
+}
+
+
 class DeleteWorkoutEvent implements _Event {
   String workoutId;
 
@@ -95,6 +101,8 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
             event.workoutId, event.workoutExerciseId);
       } else if (event is SetsAndRepsEvent) {
         newState = await handleSetsAndRepsEvent(event.params);
+      } else if (event is AddWorkoutEvent) {
+        newState = await handleAddWorkout(event.workout);
       }
     } catch (error) {
       print(error);
@@ -180,6 +188,20 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
     final updatedProgram =
         new Program(name: state.programRef.name, workouts: workouts);
     return WorkoutActionState(programRef: updatedProgram, workoutRef: workouts);
+  }
+
+  Future<WorkoutActionState> handleAddWorkout(Workout workout) async {
+    if (state.programRef == null) {
+      return null;
+    }
+    List<Workout> workouts;
+    workouts = state.workoutRef;
+    workouts.add(workout);
+
+    final updatedProgram =
+        new Program(name: state.programRef.name, workouts: workouts);
+    return WorkoutActionState(
+        programRef: updatedProgram, workoutRef: updatedProgram.workouts);
   }
 
   Future<WorkoutActionState> handleDeleteWorkoutExerciseEvent(
