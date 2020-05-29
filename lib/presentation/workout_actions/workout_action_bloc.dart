@@ -28,23 +28,11 @@ abstract class _Event {}
 
 class InitEvent implements _Event {}
 
-class AddWorkoutEvent implements _Event {
-  Workout workout;
-  AddWorkoutEvent({this.workout});
-}
-
-
-class DeleteWorkoutEvent implements _Event {
+class WorkoutEvent implements _Event {
   String workoutId;
+  String action;
 
-  DeleteWorkoutEvent({this.workoutId});
-}
-
-class DeleteWorkoutExerciseEvent implements _Event {
-  String workoutId;
-  String workoutExerciseId;
-
-  DeleteWorkoutExerciseEvent({this.workoutId, this.workoutExerciseId});
+  WorkoutEvent({this.workoutId, this.action});
 }
 
 class EditWorkoutEvent implements _Event {
@@ -76,6 +64,14 @@ class SetsAndRepsEvent implements _Event {
   SetsAndRepsEvent({this.params});
 }
 
+class WorkoutExercisesEvent implements _Event {
+  String workoutId;
+  String workoutExerciseId;
+  String action;
+
+  WorkoutExercisesEvent({this.workoutId, this.workoutExerciseId, this.action});
+}
+
 class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
   final WorkoutRepository workoutRepo;
 
@@ -94,15 +90,13 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
       } else if (event is EditWorkoutEvent) {
         newState = await handleEditWorkout(
             event.workoutId, event.editAction, event.newValue);
-      } else if (event is DeleteWorkoutEvent) {
-        newState = await handleDeleteWorkout(event.workoutId);
-      } else if (event is DeleteWorkoutExerciseEvent) {
-        newState = await handleDeleteWorkoutExerciseEvent(
-            event.workoutId, event.workoutExerciseId);
       } else if (event is SetsAndRepsEvent) {
         newState = await handleSetsAndRepsEvent(event.params);
-      } else if (event is AddWorkoutEvent) {
-        newState = await handleAddWorkout(event.workout);
+      } else if (event is WorkoutExercisesEvent) {
+        newState = await handleWorkoutExercisesEvent(
+            event.workoutId, event.workoutExerciseId, event.action);
+      } else if (event is WorkoutEvent) {
+        newState = await handleWorkoutEvent(event.workoutId, event.action);
       }
     } catch (error) {
       print(error);
@@ -170,6 +164,7 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
         break;
     }
     workouts.insert(indexOfTargetWorkout, editedWorkout);
+
     final updatedProgram =
         new Program(name: state.programRef.name, workouts: workouts);
 
@@ -177,60 +172,48 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
         programRef: updatedProgram, workoutRef: updatedProgram.workouts);
   }
 
-  Future<WorkoutActionState> handleDeleteWorkout(String id) async {
+  Future<WorkoutActionState> handleWorkoutExercisesEvent(
+      String workoutId, String workoutExerciseId, String action) async {
     if (state.programRef == null) {
       return null;
     } else if (state.workoutRef == []) {
       return state;
     }
-    List<Workout> workouts;
-    workouts = state.workoutRef.where((workout) => workout.id != id).toList();
-    final updatedProgram =
-        new Program(name: state.programRef.name, workouts: workouts);
-    return WorkoutActionState(programRef: updatedProgram, workoutRef: workouts);
-  }
-
-  Future<WorkoutActionState> handleAddWorkout(Workout workout) async {
-    if (state.programRef == null) {
-      return null;
-    }
-    List<Workout> workouts;
-    workouts = state.workoutRef;
-    workouts.add(workout);
-
-    final updatedProgram =
-        new Program(name: state.programRef.name, workouts: workouts);
-    return WorkoutActionState(
-        programRef: updatedProgram, workoutRef: updatedProgram.workouts);
-  }
-
-  Future<WorkoutActionState> handleDeleteWorkoutExerciseEvent(
-      String workoutId, String workoutExerciseId) async {
-    if (state.programRef == null) {
-      return null;
-    } else if (state.workoutRef == []) {
-      return state;
-    }
-
     final workoutRef = state.workoutRef;
-
     List<Workout> workouts;
     List<WorkoutExercise> workoutExercises;
     Workout editWorkout;
 
-    workouts = workoutRef.where((workout) => workout.id != workoutId).toList();
+    workouts = workoutRef;
     editWorkout = workoutRef.singleWhere((workout) => workout.id == workoutId);
-    workoutExercises = editWorkout.workoutExercises
-        .where((workoutExercise) => workoutExercise.id != workoutExerciseId)
-        .toList();
-
+    workoutExercises = editWorkout.workoutExercises;
     final indexOfEditWorkout = state.workoutRef.indexOf(editWorkout);
-
-    editWorkout = new Workout(
-        id: editWorkout.id,
-        name: editWorkout.name,
-        workoutExercises: workoutExercises,
-        description: editWorkout.description);
+    switch (action) {
+      case Constants.ADD_ACTION:
+        {
+          workoutExercises.add(new WorkoutExercise(
+              id: workoutExerciseId, exerciseId: "1", name: "test exercise"));
+          editWorkout = new Workout(
+              id: editWorkout.id,
+              name: editWorkout.name,
+              workoutExercises: workoutExercises,
+              description: editWorkout.description);
+        }
+        break;
+      case Constants.DELETE_ACTION:
+        {
+          workoutExercises = editWorkout.workoutExercises
+              .where(
+                  (workoutExercise) => workoutExercise.id != workoutExerciseId)
+              .toList();
+          editWorkout = new Workout(
+              id: editWorkout.id,
+              name: editWorkout.name,
+              workoutExercises: workoutExercises,
+              description: editWorkout.description);
+        }
+        break;
+    }
     workouts.insert(indexOfEditWorkout, editWorkout);
     final updatedProgram =
         new Program(name: state.programRef.name, workouts: workouts);
@@ -312,5 +295,30 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
 
     editProgram = new Program(name: programRef.name, workouts: workouts);
     return WorkoutActionState(programRef: editProgram, workoutRef: workouts);
+  }
+
+  Future<WorkoutActionState> handleWorkoutEvent(
+      String workoutId, String action) async {
+    if (state.programRef == null) {
+      return null;
+    }
+    List<Workout> workouts;
+    workouts = state.workoutRef;
+    switch (action) {
+      case Constants.ADD_ACTION:
+        {
+          workouts.add(new Workout(id: workoutId));
+        }
+        break;
+      case Constants.DELETE_ACTION:
+        {
+          workouts = state.workoutRef
+              .where((workout) => workout.id != workoutId)
+              .toList();
+        }
+    }
+    final updatedProgram =
+        new Program(name: state.programRef.name, workouts: workouts);
+    return WorkoutActionState(programRef: updatedProgram, workoutRef: workouts);
   }
 }

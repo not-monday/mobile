@@ -5,7 +5,7 @@ import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/presentation/workout_actions/workout_action_bloc.dart';
 import 'package:stronk/presentation/workout_actions/workout_action_exerciseSetDisplay.dart';
 
-enum workoutOptions { editWorkoutName, editWorkoutDescription, deleteWorkout }
+enum workoutOptions { editWorkoutName, editWorkoutDescription }
 
 class WorkoutExerciseCard extends StatelessWidget {
   final WorkoutExercise workoutExercise;
@@ -66,20 +66,23 @@ class WorkoutExerciseCard extends StatelessWidget {
                                                 newValue: "new workout Name"))
                                           })),
                               PopupMenuItem<workoutOptions>(
-                                  value: workoutOptions.deleteWorkout,
-                                  child: FlatButton(
-                                      child: Text("Delete Workout"),
-                                      onPressed: () => {
-                                            bloc.add(new DeleteWorkoutEvent(
-                                                workoutId: workoutId))
-                                          })),
-                              PopupMenuItem<workoutOptions>(
                                   child: FlatButton(
                                 child: Text("Delete WorkoutExercise"),
                                 onPressed: () => {
-                                  bloc.add(new DeleteWorkoutExerciseEvent(
+                                  bloc.add(new WorkoutExercisesEvent(
                                       workoutId: workoutId,
-                                      workoutExerciseId: workoutExercise.id))
+                                      workoutExerciseId: workoutExercise.id,
+                                      action: Constants.DELETE_ACTION))
+                                },
+                              )),
+                              PopupMenuItem<workoutOptions>(
+                                  child: FlatButton(
+                                child: Text("Add workout exercise"),
+                                onPressed: () => {
+                                  bloc.add(new WorkoutExercisesEvent(
+                                      workoutId: workoutId,
+                                      workoutExerciseId: "1000",
+                                      action: Constants.ADD_ACTION))
                                 },
                               ))
                             ]),

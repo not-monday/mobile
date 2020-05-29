@@ -131,4 +131,128 @@ void main() {
             newWeight: 20,
             action: Constants.EDIT_ACTION)));
   });
+
+  test("add workout", () async {
+    var mockProgram = WorkoutRepositoryImpl.mockProgram();
+    when(mockWorkoutRepo.retrieveProgram())
+        .thenAnswer((_) => Future.value(mockProgram));
+
+    var matcher = TypeMatcher<WorkoutActionState>();
+
+    var matchEndState = (_) {
+      var workout = mockWorkoutActionBloc.state.workoutRef;
+      var modifiedWorkout = workout;
+      modifiedWorkout.add(new Workout(id: "1000"));
+      expect(workout, modifiedWorkout);
+    };
+
+    expectLater(
+        mockWorkoutActionBloc,
+        emitsInOrder([
+          matcher.having(
+              (state) => state.programRef, "Initial workoutRef is null", null),
+          matcher.having((state) => state.workoutRef, "initial workout list",
+              mockProgram.workouts),
+        ])).then((_) => matchEndState);
+
+    mockWorkoutActionBloc
+        .add(new WorkoutEvent(workoutId: "1000", action: Constants.ADD_ACTION));
+  });
+
+  test("delete workout", () async {
+    var mockProgram = WorkoutRepositoryImpl.mockProgram();
+    when(mockWorkoutRepo.retrieveProgram())
+        .thenAnswer((_) => Future.value(mockProgram));
+
+    var matcher = TypeMatcher<WorkoutActionState>();
+
+    var matchEndState = (_) {
+      var workout = mockWorkoutActionBloc.state.workoutRef;
+      var modifiedWorkout = workout.sublist(0, workout.length - 2);
+      expect(workout, modifiedWorkout);
+    };
+
+    expectLater(
+        mockWorkoutActionBloc,
+        emitsInOrder([
+          matcher.having(
+              (state) => state.programRef, "Initial workoutRef is null", null),
+          matcher.having((state) => state.workoutRef, "initial workout list",
+              mockProgram.workouts),
+        ])).then((_) => matchEndState);
+
+    mockWorkoutActionBloc.add(new WorkoutEvent(
+        workoutId: mockProgram.workouts.last.id, action: Constants.ADD_ACTION));
+  });
+
+  test("add workout sets and reps", () async {
+    var mockProgram = WorkoutRepositoryImpl.mockProgram();
+    when(mockWorkoutRepo.retrieveProgram())
+        .thenAnswer((_) => Future.value(mockProgram));
+
+    var matcher = TypeMatcher<WorkoutActionState>();
+
+    var matchEndState = (_) {
+      var workoutExerciseSetAndRep = mockWorkoutActionBloc
+              .state.workoutRef[0].workoutExercises[0].exerciseSets[
+          mockWorkoutActionBloc.state.workoutRef[0].workoutExercises.length -
+              1];
+      expect(workoutExerciseSetAndRep, ExerciseSet(weight: 20, number: 10));
+    };
+
+    expectLater(
+        mockWorkoutActionBloc,
+        emitsInOrder([
+          matcher.having(
+              (state) => state.programRef, "Initial workoutRef is null", null),
+          matcher.having(
+              (state) =>
+                  state.workoutRef[0].workoutExercises[0].exerciseSets.last,
+              "last set and rep",
+              mockProgram.workouts[0].workoutExercises[0].exerciseSets.last),
+        ])).then((_) => matchEndState);
+
+    mockWorkoutActionBloc.add(new SetsAndRepsEvent(
+        params: new ParamContainer(
+            workoutId: mockProgram.workouts[0].id,
+            workoutExerciseId: mockProgram.workouts[0].workoutExercises[0].id,
+            newRepCount: 10,
+            newWeight: 20,
+            action: Constants.ADD_ACTION)));
+  });
+
+  test("delete workout sets and reps", () async {
+    var mockProgram = WorkoutRepositoryImpl.mockProgram();
+    when(mockWorkoutRepo.retrieveProgram())
+        .thenAnswer((_) => Future.value(mockProgram));
+
+    var matcher = TypeMatcher<WorkoutActionState>();
+
+    var matchEndState = (_) {
+      var workoutExerciseSetAndRep = mockWorkoutActionBloc
+          .state.workoutRef[0].workoutExercises[0].exerciseSets.last;
+      var newFirstWorkoutExerciseSetAndRep = mockWorkoutActionBloc
+          .state.workoutRef[0].workoutExercises[0].exerciseSets[1];
+      expect(workoutExerciseSetAndRep, newFirstWorkoutExerciseSetAndRep);
+    };
+
+    expectLater(
+        mockWorkoutActionBloc,
+        emitsInOrder([
+          matcher.having(
+              (state) => state.programRef, "Initial workoutRef is null", null),
+          matcher.having(
+              (state) =>
+                  state.workoutRef[0].workoutExercises[0].exerciseSets[0],
+              "first set and rep",
+              mockProgram.workouts[0].workoutExercises[0].exerciseSets[0]),
+        ])).then((_) => matchEndState);
+
+    mockWorkoutActionBloc.add(new SetsAndRepsEvent(
+        params: new ParamContainer(
+            workoutId: mockProgram.workouts[0].id,
+            workoutExerciseId: mockProgram.workouts[0].workoutExercises[0].id,
+            index: 0,
+            action: Constants.DELETE_ACTION)));
+  });
 }
