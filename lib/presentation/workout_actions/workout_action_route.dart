@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:stronk/api/workout_repo.dart';
-import 'package:stronk/presentation/edit_workout/edit_workout_card.dart';
-import 'package:stronk/presentation/edit_workout/edit_workout_bloc.dart';
+import 'package:stronk/presentation/workout_actions/workout_action_bloc.dart';
+import 'package:stronk/presentation/workout_actions/workout_action_card.dart';
 
-class EditWorkoutPage extends StatelessWidget {
+
+
+class WorkoutActionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final workoutRepository = RepositoryProvider.of<WorkoutRepository>(context);
     return BlocProvider(
-      create: (context) => EditWorkoutBloc(workoutRepo: workoutRepository),
-      child: BlocBuilder<EditWorkoutBloc, EditWorkoutState>(builder: buildPage),
+      create: (context) => WorkoutActionBloc(workoutRepo: workoutRepository),
+      child: BlocBuilder<WorkoutActionBloc, WorkoutActionState>(
+          builder: buildPage),
     );
   }
 
-  Widget buildPage(BuildContext context, EditWorkoutState editWorkoutState) {
-    final editWorkoutBloc = BlocProvider.of<EditWorkoutBloc>(context);
+  Widget buildPage(BuildContext context, WorkoutActionState editWorkoutState) {
+    final editWorkoutBloc = BlocProvider.of<WorkoutActionBloc>(context);
     return Scaffold(
       body: _renderWorkouts(editWorkoutBloc, editWorkoutState),
     );
   }
 
   Widget _renderWorkouts(
-      EditWorkoutBloc bloc, EditWorkoutState editWorkoutState) {
+      WorkoutActionBloc bloc, WorkoutActionState editWorkoutState) {
     if (editWorkoutState.programRef == null) {
       return Container(
         child: Text("Retrieving your workouts..!"),
@@ -42,7 +44,7 @@ class EditWorkoutPage extends StatelessWidget {
         //For now set item count as 1 since there will only be one program
         itemCount: workoutRef.length,
         itemBuilder: (context, index) {
-          return EditWorkoutCard(
+          return WorkoutActionCard(
               programName: programRef.name,
               workout: workoutRef[index],
               bloc: bloc);
