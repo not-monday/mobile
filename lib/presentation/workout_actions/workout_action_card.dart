@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/domain/constants.dart' as Constants;
+import 'package:stronk/presentation/workout_actions/PopUpMenu.dart';
 import 'package:stronk/presentation/workout_actions/workout_action_bloc.dart';
 import 'package:stronk/presentation/workout_actions/workout_action_exercise_display.dart';
 
@@ -32,39 +33,7 @@ class WorkoutActionCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-              ListTile(
-                  trailing: PopupMenuButton<programOptions>(
-                      itemBuilder: (BuildContext context) =>
-                          <PopupMenuEntry<programOptions>>[
-                            PopupMenuItem<programOptions>(
-                                value: programOptions.editProgramName,
-                                child: FlatButton(
-                                    child: Text("Edit program name"),
-                                    onPressed: () => {
-                                          bloc.add(new EditProgramNameEvent(
-                                              "Editted program name"))
-                                        })),
-                            PopupMenuItem<programOptions>(
-                              value: programOptions.addWorkout,
-                              child: FlatButton(
-                                child: Text("Add workout"),
-                                onPressed: () => {
-                                  bloc.add(new WorkoutEvent(
-                                      workoutId: "1000",
-                                      action: Constants.ADD_ACTION))
-                                },
-                              ),
-                            ),
-                            PopupMenuItem<programOptions>(
-                                value: programOptions.deleteWorkout,
-                                child: FlatButton(
-                                    child: Text("Delete Workout"),
-                                    onPressed: () => {
-                                          bloc.add(new WorkoutEvent(
-                                              workoutId: workout.id,
-                                              action: Constants.DELETE_ACTION))
-                                        }))
-                          ])),
+              ListTile(trailing: buildPopUpMenu(context)),
               Align(
                   alignment: Alignment.centerLeft,
                   child: Container(
@@ -76,5 +45,26 @@ class WorkoutActionCard extends StatelessWidget {
             ])),
       ),
     );
+  }
+
+  Widget buildPopUpMenu(BuildContext context) {
+    return PopUpMenu.createPopup([
+      new PopUpMenu(
+          option: "Add workout",
+          onTap: () => {
+                bloc.add(new WorkoutEvent(
+                    workoutId: "1000", action: Constants.ADD_ACTION))
+              }),
+      new PopUpMenu(
+          option: "Delete Workout",
+          onTap: () => {
+                bloc.add(new WorkoutEvent(
+                    workoutId: workout.id, action: Constants.DELETE_ACTION))
+              }),
+      new PopUpMenu(
+          option: "Edit program name",
+          onTap: () =>
+              {bloc.add(new EditProgramNameEvent("Editted program name"))})
+    ]);
   }
 }
