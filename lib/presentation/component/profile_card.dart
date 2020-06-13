@@ -1,7 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stronk/presentation/profile/profile_bloc.dart';
 
 class ProfileCard extends StatelessWidget {
+  final ProfileState profileState;
+
+  ProfileCard({@required this.profileState});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -13,9 +18,8 @@ class ProfileCard extends StatelessWidget {
               Icons.account_circle,
               size: 100.0,
             ),
-            Text('Richard Wei')
+            Text(profileState.user.name)
           ],
-
         ));
   }
 }
