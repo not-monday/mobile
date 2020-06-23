@@ -24,7 +24,7 @@ class Config {
 }
 
 Future<void> initializeConfig() async {
-  var configText = await rootBundle.loadString('assets/config.yaml');
+  var configText = await rootBundle.loadString('assets/config.yml');
   CONFIG = Config(configText);
 }
 

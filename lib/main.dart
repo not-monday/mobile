@@ -81,7 +81,7 @@ class MyApp extends StatelessWidget {
       builder: (context, screen) => MaterialApp(
           title: 'Stronk',
           theme: ThemeData(
-            primarySwatch: Colors.blue,
+          primarySwatch: Colors.blue,
           ),
           home: screen),
     );
@@ -92,13 +92,19 @@ class MyApp extends StatelessWidget {
   /// TODO consider converting auth manager init to static async
   Future<void> initializeAuthManager() async {
     await initializeConfig();
+    final sp = await SharedPreferences.getInstance();
+
     authManager = AuthManager(
         googleSignIn: _googleSignIn,
         firebaseAuth: _auth,
-        sharedPrefs: await SharedPreferences.getInstance(),
+        sharedPrefs: sp,
         store: store);
 
     graphQLUtility = GraphQLUtility();
+    final currentAccount = authManager.currentAccount;
+    if (currentAccount != null) {
+      graphQLUtility.updateIdToken(currentAccount.id);
+    }
     workoutRepo = WorkoutRepositoryImpl(utility: graphQLUtility);
     userRepo = UserRepositoryImpl(utility: graphQLUtility);
     settingsRepo = SettingsRepositoryImpl();

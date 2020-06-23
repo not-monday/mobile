@@ -7,7 +7,7 @@ String createUser(String name, String username, String email) => """
       email: "$email"
     ) {
       user {
-        id, name, username, email, currentProgram
+        id, name, username, email
       }
     }
   }

@@ -13,7 +13,7 @@ More details to come :)
 
 ### Setting up backend (for dev)
 1. Make sure you have the [Stronk backend](https://github.com/not-monday/stronk-backend) running
-2. Copy the `config_example.yaml` and rename it `config.yaml`
+2. Copy the `config_example` and rename it `config.yml`
 3. Fill in the fields
 
 ## TODO
