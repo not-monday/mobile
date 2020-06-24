@@ -64,7 +64,7 @@ class _WorkoutPageViewState extends State<WorkoutCardViewPager> {
               onPageChanged: onWorkoutScroll,
             ),
           ),
-          PageViewIndicators()
+          pageViewIndicators()
         ],
     ));
   }
@@ -75,7 +75,7 @@ class _WorkoutPageViewState extends State<WorkoutCardViewPager> {
     });
   }
 
-  Widget PageViewIndicators() {
+  Widget pageViewIndicators() {
     int position = 0;
 
     return Row(
