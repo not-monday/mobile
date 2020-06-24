@@ -30,7 +30,7 @@ steps:
   name: config 
   displayName: "Download app config"
   inputs:
-    secureFile: 'config.yaml'
+    secureFile: 'config.yml'
 
 - script: mv $(config.secureFilePath) assets;
   displayName: "Move app config to project"

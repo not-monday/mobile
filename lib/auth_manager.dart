@@ -11,6 +11,8 @@ import 'package:stronk/api/graphql.dart';
 import 'package:stronk/api/graphql/auth.dart';
 import 'package:stronk/redux/reducer/app_reducer.dart';
 
+import 'api/graphql/error_codes.dart';
+
 const KEY_SIGNED_IN = "user_signed_in";
 
 const KEY_ACCOUNT_ID = "account.id";
@@ -33,7 +35,7 @@ class AuthManager {
 
   AuthManager(
       {@required this.googleSignIn, @required this.firebaseAuth, @required this.sharedPrefs, @required this.store}) {
-    store.dispatch(LoadingCompletedAction(currentAccount: _currentAccount));
+    store.dispatch(LoadingCompletedAction(currentAccount: currentAccount));
   }
 
   /// only called for first time sign in
@@ -82,12 +84,14 @@ class AuthManager {
 
       // TODO ugly rn but will consolidate error handling once it's resolved serverside
       // ignore exception for account already created
-      if (result.exception != null && result.exception.graphqlErrors.first.toString().startsWith("409")) {
-        // TODO add "welcome back" message
-        return Account(id: uid, name: name, username: name, email: email, credentials: credentials);
-      } else {
-        return null;
+      if (result.exception != null) {
+        final code = result.exception.graphqlErrors.first.raw["context"]["code"];
+        if (code == CONFLICT_ERROR_CODE) {
+          // TODO add "welcome back" message
+          return Account(id: uid, name: name, username: name, email: email, credentials: credentials);
+        }
       }
+      return null;
     }
 
     final createdUser = result.data["createUser"]["user"];
@@ -99,7 +103,7 @@ class AuthManager {
         credentials: credentials);
   }
 
-  Account get _currentAccount {
+  Account get currentAccount {
     final id = sharedPrefs.getString(KEY_ACCOUNT_ID);
     final name = sharedPrefs.getString(KEY_ACCOUNT_NAME);
     final email = sharedPrefs.getString(KEY_ACCOUNT_EMAIL);
