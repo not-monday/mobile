@@ -7,11 +7,12 @@ class ProfileState {
 
   final User user;
 
-  ProfileState({this.user});
+
+  ProfileState({@required this.user});
 
   @override
   String toString() {
-    return ("\n name: $user");
+    return ("\n name: ${user.name}");
   }
 }
 
@@ -25,7 +26,7 @@ class ProfileBloc extends Bloc<_Event, ProfileState> {
   final UserRepository userRepository;
 
   @override
-  ProfileState get initialState => new ProfileState(user: null);
+  ProfileState get initialState => new ProfileState(user : new User(name: ""));
 
   @override
   Stream<ProfileState> mapEventToState(_Event event) async* {

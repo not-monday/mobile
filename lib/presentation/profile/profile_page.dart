@@ -11,18 +11,19 @@ import 'profile_bloc.dart';
 
 class ProfilePage extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => BlocProvider(
-        create: (context) {
-          final userRepository = RepositoryProvider.of<UserRepository>(context);
-          return ProfileBloc(userRepository: userRepository);
-        },
-        child: BlocBuilder<ProfileBloc, ProfileState>(
-            builder: (context, profileState) => Scaffold(
-                resizeToAvoidBottomPadding: false,
-                appBar: _renderAppBar(context,
-                    BlocProvider.of<ProfileBloc>(context), profileState),
-                body: _renderSettings(profileState))),
-      );
+  Widget build(BuildContext context) {
+    final userRepository = RepositoryProvider.of<UserRepository>(context);
+    return BlocProvider(
+      create: (context) =>
+          ProfileBloc(userRepository: userRepository),
+      child: BlocBuilder<ProfileBloc, ProfileState>(
+          builder: (context, profileState) => Scaffold(
+              resizeToAvoidBottomPadding: false,
+              appBar: _renderAppBar(
+                  context, BlocProvider.of<ProfileBloc>(context), profileState),
+              body: _renderSettings(profileState))),
+    );
+  }
 
   _renderAppBar(BuildContext context, ProfileBloc profileBloc,
       ProfileState profileState) {
