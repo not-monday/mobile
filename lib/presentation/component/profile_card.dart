@@ -18,7 +18,8 @@ class ProfileCard extends StatelessWidget {
               Icons.account_circle,
               size: 100.0,
             ),
-            Text(profileState.user.name)
+            Text(profileState.user.name),
+            Text(profileState.user.email)
           ],
         ));
   }

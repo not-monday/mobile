@@ -1,7 +1,9 @@
-import 'package:stronk/domain/model/user.dart';
+import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:stronk/api/user_repo.dart';
-import 'package:bloc/bloc.dart';
+import 'package:stronk/domain/model/user.dart';
+
+import '../../auth_manager.dart';
 
 class ProfileState {
 
@@ -24,6 +26,7 @@ class InitEvent implements _Event {}
 
 class ProfileBloc extends Bloc<_Event, ProfileState> {
   final UserRepository userRepository;
+  final AuthManager authManager;
 
   @override
   ProfileState get initialState => new ProfileState(user : new User(name: ""));
@@ -37,12 +40,12 @@ class ProfileBloc extends Bloc<_Event, ProfileState> {
     yield newState;
   }
 
-  ProfileBloc({@required this.userRepository}) {
+  ProfileBloc({@required this.userRepository, this.authManager}) {
     add(new InitEvent());
   }
 
   Future<ProfileState> handleInit() async {
-    final user = await userRepository.retrieveUser();
+    final user = await userRepository.retrieveUserById(authManager.currentAccount.id);
     return new ProfileState(user: user);
   }
 }
