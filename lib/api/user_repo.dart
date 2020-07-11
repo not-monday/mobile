@@ -3,8 +3,8 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:graphql/client.dart';
 import 'package:stronk/api/graphql.dart';
-import 'package:stronk/domain/model/user.dart';
 import 'package:stronk/api/graphql/userDocument.dart';
+import 'package:stronk/domain/model/user.dart';
 
 abstract class UserRepository {
   Future<User> retrieveUser();
@@ -38,6 +38,6 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   static User mockUser() {
-    return User(name: "test", email: "test@flutter.ca");
+    return new User(name: "test", email: "test@flutter.ca");
   }
 }

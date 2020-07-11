@@ -47,7 +47,7 @@ class ProfilePage extends StatelessWidget {
   // TODO look into using future builder to avoid exception when waiting for user data
   // Added an if statement to avoid null exception
   _renderSettings(ProfileState profileState) {
-    if(profileState.user.name == "") {
+    if(profileState.user == null) {
       return Container(child : Text("Waiting for user"));
     }
 

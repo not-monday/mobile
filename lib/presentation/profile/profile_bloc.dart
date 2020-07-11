@@ -14,7 +14,7 @@ class ProfileState {
 
   @override
   String toString() {
-    return ("\n name: ${user.name}");
+    return ("\n $user");
   }
 }
 
@@ -29,7 +29,7 @@ class ProfileBloc extends Bloc<_Event, ProfileState> {
   final AuthManager authManager;
 
   @override
-  ProfileState get initialState => new ProfileState(user : new User(name: ""));
+  ProfileState get initialState => new ProfileState(user : null);
 
   @override
   Stream<ProfileState> mapEventToState(_Event event) async* {
