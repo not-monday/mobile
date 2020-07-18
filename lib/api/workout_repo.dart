@@ -10,6 +10,8 @@ import 'graphql.dart';
 
 abstract class WorkoutRepository {
   Future<Program> retrieveProgram();
+  Future<List<Program>> retrievePrograms();
+
   Future<Workout> retrieveWorkout();
 }
 
@@ -19,20 +21,26 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
 
   WorkoutRepositoryImpl({@required this.utility, @required this.authManager});
 
+
   @override
-  Future<Program> retrieveProgram() async {
+  Future<List<Program>> retrievePrograms() async {
     // TODO use current user program, currently blocked by user profile PR
-    final id = authManager.currentAccount.id;
-    final node = gql(ProgramDocument.queryProgram(id));
+    final node = gql(ProgramDocument.queryPrograms());
     final options = QueryOptions(documentNode: node);
 
     final result = await utility.client.query(options);
     if (result.hasException) {
-      log("error retrieving program for user id $id");
+      log("error retrieving programs ${result.exception}");
       // TODO
       return null;
     }
 
+    return [mockProgram()];
+  }
+
+
+  @override
+  Future<Program> retrieveProgram() async {
     return mockProgram();
   }
 

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:graphql/client.dart';
 
 import '../config.dart';
@@ -23,4 +25,20 @@ class GraphQLUtility {
     );
   }
 
+  /// makes a request for a full page
+  Future<T> makePageRequest<T> (
+    String document,
+    T Function(Map<String, dynamic> json) fromJson
+  ) async {
+    final node = gql(document);
+    final options = QueryOptions(documentNode: node);
+
+    final result = await client.query(options);
+    if (result.hasException) {
+      log("error ${result.exception}");
+      return null;
+    }
+
+    return fromJson(result.data);
+  }
 }
