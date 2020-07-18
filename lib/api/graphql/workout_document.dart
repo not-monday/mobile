@@ -1,15 +1,4 @@
 class WorkoutDocument {
-  static String queryProgram(int programId) => """
-    query {
-      program(id: $programId) {
-        id, name, duration, description, 
-        workouts {
-          id, name, description, projectedTime
-        }
-      }
-    }
-  """;
-
   static String queryWorkouts(int id) => """
     
   """;

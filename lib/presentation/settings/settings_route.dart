@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:stronk/api/settings_repo.dart';
-import 'package:stronk/presentation/search/search_page.dart';
+import 'package:stronk/presentation/discover/discover_page.dart';
 import 'package:stronk/presentation/settings/settings_bloc.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -60,7 +60,7 @@ class SettingsPage extends StatelessWidget {
             ),
             child: ListTile(
               onTap: () =>  Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SearchPage())),
+                  MaterialPageRoute(builder: (context) => DiscoverPage())),
               dense: true,
               title: Text(options[index],
                 style: TextStyle(

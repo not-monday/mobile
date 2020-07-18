@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:stronk/presentation/search/search_page.dart';
+import 'package:stronk/presentation/discover/discover_page.dart';
 
 class ProfileSettings extends StatelessWidget {
   @override
@@ -21,7 +21,7 @@ class ProfileSettings extends StatelessWidget {
                 ),
                 child: ListTile(
                   onTap: () =>  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SearchPage())),
+                      MaterialPageRoute(builder: (context) => DiscoverPage())),
                   dense: true,
                   title: Text('choice',
                     style: TextStyle(

@@ -3,7 +3,7 @@ import 'package:stronk/auth_manager.dart';
 import 'package:stronk/domain/model/user.dart';
 import 'package:stronk/domain/model/workout.dart';
 
-enum Navigation { Day, Search, Profile}
+enum Navigation { Day, Discover, Profile}
 
 enum ScreenState { Loading, LoginRequired, Ready }
 

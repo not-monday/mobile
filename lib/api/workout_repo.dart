@@ -4,8 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:graphql/client.dart';
 import 'package:stronk/domain/model/workout.dart';
 
+import '../auth_manager.dart';
+import 'graphql/program_document.dart';
 import 'graphql.dart';
-import 'graphql/workout_document.dart';
 
 abstract class WorkoutRepository {
   Future<Program> retrieveProgram();
@@ -14,23 +15,20 @@ abstract class WorkoutRepository {
 
 class WorkoutRepositoryImpl implements WorkoutRepository {
   GraphQLUtility utility;
+  AuthManager authManager;
 
-//  static final random = Random(1);
-
-  WorkoutRepositoryImpl({@required this.utility});
+  WorkoutRepositoryImpl({@required this.utility, @required this.authManager});
 
   @override
   Future<Program> retrieveProgram() async {
     // TODO use current user program, currently blocked by user profile PR
-    final id = "1";
-    final node = gql(WorkoutDocument.queryProgram(id));
+    final id = authManager.currentAccount.id;
+    final node = gql(ProgramDocument.queryProgram(id));
     final options = QueryOptions(documentNode: node);
 
     final result = await utility.client.query(options);
     if (result.hasException) {
       log("error retrieving program for user id $id");
-
-
       // TODO
       return null;
     }

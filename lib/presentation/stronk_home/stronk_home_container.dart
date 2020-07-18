@@ -4,7 +4,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:stronk/presentation/home/home_route.dart';
 import 'package:stronk/presentation/profile/profile_page.dart';
-import 'package:stronk/presentation/search/search_page.dart';
+import 'package:stronk/presentation/discover/discover_page.dart';
 import 'package:stronk/presentation/stronk_home/stronk_home_vm.dart';
 import 'package:stronk/redux/state/app_state.dart';
 
@@ -17,7 +17,7 @@ class StronkHomePage extends StatefulWidget {
 
 class _StronkHomePage extends State<StronkHomePage> {
   int _selectedIndex = 0;
-  List<Widget> navPages = [HomeRoute(), SearchPage(), ProfilePage()];
+  List<Widget> navPages = [HomeRoute(), DiscoverPage(), ProfilePage()];
 
   @override
   Widget build(BuildContext context) => StoreConnector<AppState, StronkHomeVM>(
@@ -51,7 +51,7 @@ class _StronkHomePage extends State<StronkHomePage> {
 IconData getIcon(Navigation nav) {
   switch (nav) {
     case Navigation.Day: return Icons.home;
-    case Navigation.Search: return Icons.search;
+    case Navigation.Discover: return Icons.search;
     case Navigation.Profile: return Icons.person;
     default : return null;
   }
