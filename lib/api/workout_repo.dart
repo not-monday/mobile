@@ -69,6 +69,6 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
       mockWorkout(),
     ];
 
-    return new Program(name: "mock program name", workouts: mockWorkouts);
+    return new Program(name: "mock program name", workouts: mockWorkouts, description: "test", duration: 10, id: "1");
   }
 }
