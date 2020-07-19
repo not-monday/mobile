@@ -105,7 +105,7 @@ class MyApp extends StatelessWidget {
     if (currentAccount != null) {
       graphQLUtility.updateIdToken(currentAccount.credentials.accessToken);
     }
-    workoutRepo = WorkoutRepositoryImpl(utility: graphQLUtility, authManager: authManager);
+    workoutRepo = WorkoutRepositoryImpl(utility: graphQLUtility);
     userRepo = UserRepositoryImpl(utility: graphQLUtility);
     settingsRepo = SettingsRepositoryImpl();
   }
