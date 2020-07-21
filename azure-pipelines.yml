@@ -36,7 +36,10 @@ steps:
   displayName: "Move app config to project"
 
 - script: $(FLUTTER_TOOL_PATH)/flutter pub get; 
-  displayName: "Get dependencies"  
+  displayName: "Get dependencies"
+
+- script: $(FLUTTER_TOOL_PATH)/flutter pub run build_runner build
+  displayName: "Generate generated code"
 
 # needs to be separate because flutter is installed in root of project
 # running analyze also analyzes flutter

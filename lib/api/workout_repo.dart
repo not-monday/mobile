@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:stronk/domain/model/workout.dart';
 
@@ -13,7 +11,6 @@ abstract class WorkoutRepository {
 class WorkoutRepositoryImpl implements WorkoutRepository {
   GraphQLUtility utility;
 
-  static final random = Random(1);
 
   WorkoutRepositoryImpl({@required GraphQLUtility utility});
 
@@ -35,7 +32,7 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
     ];
 
     final mockWorkoutExercise = new WorkoutExercise(
-      id: "${random.nextInt(10000)}",
+      id: "1",
       name: "workout name",
       exerciseId: "1",
       exerciseSets: mockExerciseSets,
@@ -57,7 +54,7 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
     ];
 
     final mockWorkout = Workout(
-        id: "${random.nextInt(10000)}",
+        id: "1",
         name: "mock workout",
         description: "mock description",
         workoutExercises: mockWorkoutExercises);
@@ -72,6 +69,6 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
       mockWorkout(),
     ];
 
-    return new Program(name: "mock program name", workouts: mockWorkouts);
+    return new Program(name: "mock program name", workouts: mockWorkouts, description: "test", duration: 10, id: "1");
   }
 }

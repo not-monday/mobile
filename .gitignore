@@ -78,5 +78,8 @@
 # firebase config
 google-services.json
 
+# generated files
+*.g.dart
+
 # config
 assets/config.yml

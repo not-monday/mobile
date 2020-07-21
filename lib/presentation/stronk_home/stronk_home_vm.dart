@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:redux/redux.dart';
 import 'package:stronk/redux/state/app_state.dart';
 
-final navPages = [Navigation.Day, Navigation.Search, Navigation.Profile];
+final navPages = [Navigation.Day, Navigation.Discover, Navigation.Profile];
 
 class StronkHomeVM {
   final Store<AppState> store;
