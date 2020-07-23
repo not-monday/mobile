@@ -4,9 +4,12 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:stronk/api/graphql.dart';
 import 'package:stronk/api/workout_repo.dart';
+import 'package:stronk/auth_manager.dart';
 import 'package:stronk/domain/constants.dart' as Constants;
 import 'package:stronk/domain/model/workout.dart';
+import 'package:stronk/presentation/workout_actions/workoutDocument.dart';
 
 import 'param_container.dart';
 
@@ -74,9 +77,12 @@ class WorkoutExercisesEvent implements _Event {
 
 class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
   final WorkoutRepository workoutRepo;
+  final GraphQLUtility graphQLUtility;
+  final AuthManager authManager;
 
   @override
-  WorkoutActionState get initialState => new WorkoutActionState(programRef: null);
+  WorkoutActionState get initialState =>
+      new WorkoutActionState(programRef: null);
 
   @override
   Stream<WorkoutActionState> mapEventToState(_Event event) async* {
@@ -102,14 +108,17 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
     yield newState;
   }
 
-  WorkoutActionBloc({@required this.workoutRepo}) {
+  WorkoutActionBloc({@required this.workoutRepo, @required this.graphQLUtility, @required this.authManager}) {
     add(new InitEvent());
   }
 
   Future<WorkoutActionState> handleInit() async {
-    final activeWorkout = await workoutRepo.retrieveProgram();
+    final activeWorkout = await graphQLUtility.makePageRequest<WorkoutPageModel>(
+        WorkoutDocument.getQueryProgram(authManager.currentAccount.id),
+            (json) => WorkoutPageModel.fromJson(json)
+    );
 
-    return WorkoutActionState(programRef: activeWorkout, workoutRef: activeWorkout.workouts);
+    return WorkoutActionState(programRef : activeWorkout.program, workoutRef: activeWorkout.program.workouts);
   }
 
   Future<WorkoutActionState> handleEditProgramName(String newName) async {

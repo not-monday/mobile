@@ -1,10 +1,10 @@
 import 'package:redux/redux.dart';
+import 'package:stronk/api/user_repo.dart';
 import 'package:stronk/api/workout_repo.dart';
 import 'package:stronk/domain/model/user.dart';
 import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/redux/reducer/app_reducer.dart';
 import 'package:stronk/redux/state/app_state.dart';
-import 'package:stronk/api/user_repo.dart';
 
 class RequestMiddleware extends MiddlewareClass<AppState> {
   UserRepositoryImpl userRepo;

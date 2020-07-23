@@ -89,7 +89,7 @@ class ActiveWorkoutBloc extends Bloc<_Event, ActiveWorkoutState> {
 
   // region event handlers
   Future<ActiveWorkoutState> handleInit() async {
-    final activeWorkout = await workoutRepo.retrieveWorkout();
+    final activeWorkout = await workoutRepo.mockRetrieveWorkout();
 
     final exerciseRecords = activeWorkout.workoutExercises
         .map((exercise) => new ExerciseRecord(status: Status.Incomplete, exercise: exercise))

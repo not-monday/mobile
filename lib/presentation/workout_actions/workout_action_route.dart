@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stronk/api/graphql.dart';
 import 'package:stronk/api/workout_repo.dart';
+import 'package:stronk/auth_manager.dart';
 import 'package:stronk/presentation/workout_actions/workout_action_bloc.dart';
 import 'package:stronk/presentation/workout_actions/workout_action_card.dart';
-
-
 
 class WorkoutActionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final workoutRepository = RepositoryProvider.of<WorkoutRepository>(context);
+    final graphQLUtility = RepositoryProvider.of<GraphQLUtility>(context);
+    final authManager = RepositoryProvider.of<AuthManager>(context);
     return BlocProvider(
-      create: (context) => WorkoutActionBloc(workoutRepo: workoutRepository),
+      create: (context) => WorkoutActionBloc(workoutRepo: workoutRepository, graphQLUtility: graphQLUtility, authManager: authManager),
       child: BlocBuilder<WorkoutActionBloc, WorkoutActionState>(
           builder: buildPage),
     );

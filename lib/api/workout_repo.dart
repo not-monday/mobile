@@ -5,7 +5,8 @@ import 'graphql.dart';
 
 abstract class WorkoutRepository {
   Future<Program> retrieveProgram();
-  Future<Workout> retrieveWorkout();
+
+  Future<Workout> mockRetrieveWorkout();
 }
 
 class WorkoutRepositoryImpl implements WorkoutRepository {
@@ -20,7 +21,7 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
   }
 
   @override
-  Future<Workout> retrieveWorkout() async {
+  Future<Workout> mockRetrieveWorkout() async {
     return mockWorkout();
   }
 
