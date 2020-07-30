@@ -19,7 +19,7 @@ void main() {
 
   test("complete exercise updates workout record", () async {
     var mockWorkout = WorkoutRepositoryImpl.mockWorkout();
-    when(mockWorkoutRepo.retrieveWorkout()).thenAnswer((_) => Future.value(mockWorkout));
+    when(mockWorkoutRepo.mockRetrieveWorkout()).thenAnswer((_) => Future.value(mockWorkout));
 
     var matcher = TypeMatcher<ActiveWorkoutState>();
     var matchEndState = (_) {
@@ -40,7 +40,7 @@ void main() {
 
   test("fail exercise updates workout record", () {
     var mockWorkout = WorkoutRepositoryImpl.mockWorkout();
-    when(mockWorkoutRepo.retrieveWorkout()).thenAnswer((_) => Future.value(mockWorkout));
+    when(mockWorkoutRepo.mockRetrieveWorkout()).thenAnswer((_) => Future.value(mockWorkout));
 
     var matcher = TypeMatcher<ActiveWorkoutState>();
 
@@ -62,7 +62,7 @@ void main() {
 
   test("completed workout count is not incremented until all sets of an exercise are complete", () {
     var mockWorkout = WorkoutRepositoryImpl.mockWorkout();
-    when(mockWorkoutRepo.retrieveWorkout()).thenAnswer((_) => Future.value(mockWorkout));
+    when(mockWorkoutRepo.mockRetrieveWorkout()).thenAnswer((_) => Future.value(mockWorkout));
 
     var matcher = TypeMatcher<ActiveWorkoutState>();
 
@@ -86,7 +86,7 @@ void main() {
 
   test("completed workout count is incremented when all sets are completed for an exercise", () {
     var mockWorkout = WorkoutRepositoryImpl.mockWorkout();
-    when(mockWorkoutRepo.retrieveWorkout()).thenAnswer((_) => Future.value(mockWorkout));
+    when(mockWorkoutRepo.mockRetrieveWorkout()).thenAnswer((_) => Future.value(mockWorkout));
 
     var matcher = TypeMatcher<ActiveWorkoutState>();
 
