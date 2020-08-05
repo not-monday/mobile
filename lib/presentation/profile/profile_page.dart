@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stronk/api/graphql.dart';
 import 'package:stronk/api/user_repo.dart';
 import 'package:stronk/domain/constants.dart' as Constants;
 import 'package:stronk/presentation/component/profile_card.dart';
@@ -15,9 +16,10 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final userRepository = RepositoryProvider.of<UserRepository>(context);
     final authManager = RepositoryProvider.of<AuthManager>(context);
+    final graphQLUtility = RepositoryProvider.of<GraphQLUtility>(context);
     return BlocProvider(
       create: (context) =>
-          ProfileBloc(userRepository: userRepository, authManager: authManager),
+          ProfileBloc(userRepository: userRepository, authManager: authManager, graphQLUtility: graphQLUtility),
       child: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, profileState) => Scaffold(
               resizeToAvoidBottomPadding: false,
