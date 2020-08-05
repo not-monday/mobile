@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:stronk/api/graphql.dart';
+import 'package:stronk/api/graphql/userDocument.dart';
 import 'package:stronk/api/user_repo.dart';
 import 'package:stronk/domain/model/user.dart';
 
@@ -27,6 +29,7 @@ class InitEvent implements _Event {}
 class ProfileBloc extends Bloc<_Event, ProfileState> {
   final UserRepository userRepository;
   final AuthManager authManager;
+  final GraphQLUtility graphQLUtility;
 
   @override
   ProfileState get initialState => new ProfileState(user : null);
@@ -40,12 +43,15 @@ class ProfileBloc extends Bloc<_Event, ProfileState> {
     yield newState;
   }
 
-  ProfileBloc({@required this.userRepository, this.authManager}) {
+  ProfileBloc({@required this.userRepository, this.authManager, this.graphQLUtility}) {
     add(new InitEvent());
   }
 
   Future<ProfileState> handleInit() async {
-    final user = await userRepository.retrieveUserById(authManager.currentAccount.id);
-    return new ProfileState(user: user);
+    final userDetails = await graphQLUtility.makePageRequest<UserPageModel>(
+        UserDocument.queryUser(authManager.currentAccount.id),
+            (json) => UserPageModel.fromJson(json)
+    );
+    return new ProfileState(user: userDetails.user);
   }
 }
