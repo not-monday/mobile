@@ -14,6 +14,26 @@ class UserDocument {
        } 
     }
 """;
+
+  static String updateUsersName(String id, String name) => """
+    mutation {
+      updateUser(id : "$id", name : "$name") {
+        user {
+          name
+        }
+      }
+    }
+  """ ;
+
+  static String updateUserEmail(String id, String email) => """
+    mutation {
+      updateUser(id : "$id", name : "$email") {
+        user {
+          email
+        }
+      }
+    }
+  """ ;
 }
 
 @JsonSerializable()
