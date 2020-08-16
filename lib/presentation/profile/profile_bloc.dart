@@ -25,6 +25,19 @@ abstract class _Event {}
 
 class InitEvent implements _Event {}
 
+class UpdateEmailInfoEvent implements _Event {
+  String name;
+  String newEmail;
+
+  UpdateEmailInfoEvent({this.name, this.newEmail});
+}
+
+class UpdateNameEvent implements _Event {
+  String newName;
+  String email;
+
+  UpdateNameEvent({this.newName, this.email});
+}
 
 class ProfileBloc extends Bloc<_Event, ProfileState> {
   final UserRepository userRepository;
@@ -39,6 +52,10 @@ class ProfileBloc extends Bloc<_Event, ProfileState> {
     var newState = state;
     if (event is InitEvent) {
       newState = await handleInit();
+    } else if(event is UpdateEmailInfoEvent) {
+      newState = await handleUpdateEmail(event.name, event.newEmail);
+    } else if(event is UpdateNameEvent) {
+      newState = await handleUpdateName(event.newName, event.email);
     }
     yield newState;
   }
@@ -53,5 +70,15 @@ class ProfileBloc extends Bloc<_Event, ProfileState> {
             (json) => UserPageModel.fromJson(json)
     );
     return new ProfileState(user: userDetails.user);
+  }
+
+  Future<ProfileState> handleUpdateEmail(String name, String newEmail) async {
+    final userDetails = await userRepository.updateUserEmail(authManager.currentAccount.id, newEmail);
+    return new ProfileState(user: userDetails);
+  }
+
+  Future<ProfileState> handleUpdateName(String newName, String email) async {
+    final userDetails = await userRepository.updateUsersName(authManager.currentAccount.id, newName);
+    return new ProfileState(user: userDetails);
   }
 }

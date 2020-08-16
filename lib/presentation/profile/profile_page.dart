@@ -25,7 +25,7 @@ class ProfilePage extends StatelessWidget {
               resizeToAvoidBottomPadding: false,
               appBar: _renderAppBar(
                   context, BlocProvider.of<ProfileBloc>(context), profileState),
-              body: _renderSettings(profileState))),
+              body: _renderSettings(profileState, BlocProvider.of<ProfileBloc>(context)))),
     );
   }
 
@@ -48,7 +48,7 @@ class ProfilePage extends StatelessWidget {
   }
   // TODO look into using future builder to avoid exception when waiting for user data
   // Added an if statement to avoid null exception
-  _renderSettings(ProfileState profileState) {
+  _renderSettings(ProfileState profileState, ProfileBloc profileBloc) {
     if(profileState.user == null) {
       return Container(child : Text("Waiting for user"));
     }
@@ -56,7 +56,7 @@ class ProfilePage extends StatelessWidget {
     return Container(
         child: Column(
       children: <Widget>[
-        ProfileCard(profileState: profileState),
+        ProfileCard(profileState: profileState, profileBloc: profileBloc),
         Expanded(
           child: SizedBox(child: ProfileSettings()),
         )
