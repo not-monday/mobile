@@ -58,7 +58,7 @@ class ProfilePage extends StatelessWidget {
       children: <Widget>[
         ProfileCard(profileState: profileState, profileBloc: profileBloc),
         Expanded(
-          child: SizedBox(child: ProfileSettings()),
+          child: SizedBox(child: ProfileSettings(profileBloc: profileBloc)),
         )
       ],
     ));
