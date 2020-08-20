@@ -55,7 +55,7 @@ dev_dependencies:
   json_serializable: 3.3.0
 
 dependency_overrides:
-  test_api: 0.2.15
+  test_api: ^0.2.15
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
