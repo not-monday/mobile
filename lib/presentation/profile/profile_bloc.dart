@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:stronk/api/graphql.dart';
+import 'package:stronk/api/graphql/userDocument.dart';
 import 'package:stronk/api/user_repo.dart';
 import 'package:stronk/domain/model/user.dart';
 
@@ -23,10 +25,24 @@ abstract class _Event {}
 
 class InitEvent implements _Event {}
 
+class UpdateEmailInfoEvent implements _Event {
+  String name;
+  String newEmail;
+
+  UpdateEmailInfoEvent({this.name, this.newEmail});
+}
+
+class UpdateNameEvent implements _Event {
+  String newName;
+  String email;
+
+  UpdateNameEvent({this.newName, this.email});
+}
 
 class ProfileBloc extends Bloc<_Event, ProfileState> {
   final UserRepository userRepository;
   final AuthManager authManager;
+  final GraphQLUtility graphQLUtility;
 
   @override
   ProfileState get initialState => new ProfileState(user : null);
@@ -36,16 +52,33 @@ class ProfileBloc extends Bloc<_Event, ProfileState> {
     var newState = state;
     if (event is InitEvent) {
       newState = await handleInit();
+    } else if(event is UpdateEmailInfoEvent) {
+      newState = await handleUpdateEmail(event.name, event.newEmail);
+    } else if(event is UpdateNameEvent) {
+      newState = await handleUpdateName(event.newName, event.email);
     }
     yield newState;
   }
 
-  ProfileBloc({@required this.userRepository, this.authManager}) {
+  ProfileBloc({@required this.userRepository, this.authManager, this.graphQLUtility}) {
     add(new InitEvent());
   }
 
   Future<ProfileState> handleInit() async {
-    final user = await userRepository.retrieveUserById(authManager.currentAccount.id);
-    return new ProfileState(user: user);
+    final userDetails = await graphQLUtility.makePageRequest<UserPageModel>(
+        UserDocument.queryUser(authManager.currentAccount.id),
+            (json) => UserPageModel.fromJson(json)
+    );
+    return new ProfileState(user: userDetails.user);
+  }
+
+  Future<ProfileState> handleUpdateEmail(String name, String newEmail) async {
+    final userDetails = await userRepository.updateUserEmail(authManager.currentAccount.id, newEmail);
+    return new ProfileState(user: userDetails);
+  }
+
+  Future<ProfileState> handleUpdateName(String newName, String email) async {
+    final userDetails = await userRepository.updateUsersName(authManager.currentAccount.id, newName);
+    return new ProfileState(user: userDetails);
   }
 }

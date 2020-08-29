@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stronk/api/graphql.dart';
 import 'package:stronk/api/user_repo.dart';
 import 'package:stronk/domain/constants.dart' as Constants;
 import 'package:stronk/presentation/component/profile_card.dart';
@@ -15,15 +16,16 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final userRepository = RepositoryProvider.of<UserRepository>(context);
     final authManager = RepositoryProvider.of<AuthManager>(context);
+    final graphQLUtility = RepositoryProvider.of<GraphQLUtility>(context);
     return BlocProvider(
       create: (context) =>
-          ProfileBloc(userRepository: userRepository, authManager: authManager),
+          ProfileBloc(userRepository: userRepository, authManager: authManager, graphQLUtility: graphQLUtility),
       child: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, profileState) => Scaffold(
               resizeToAvoidBottomPadding: false,
               appBar: _renderAppBar(
                   context, BlocProvider.of<ProfileBloc>(context), profileState),
-              body: _renderSettings(profileState))),
+              body: _renderSettings(profileState, BlocProvider.of<ProfileBloc>(context)))),
     );
   }
 
@@ -46,7 +48,7 @@ class ProfilePage extends StatelessWidget {
   }
   // TODO look into using future builder to avoid exception when waiting for user data
   // Added an if statement to avoid null exception
-  _renderSettings(ProfileState profileState) {
+  _renderSettings(ProfileState profileState, ProfileBloc profileBloc) {
     if(profileState.user == null) {
       return Container(child : Text("Waiting for user"));
     }
@@ -54,9 +56,9 @@ class ProfilePage extends StatelessWidget {
     return Container(
         child: Column(
       children: <Widget>[
-        ProfileCard(profileState: profileState),
+        ProfileCard(profileState: profileState, profileBloc: profileBloc),
         Expanded(
-          child: SizedBox(child: ProfileSettings()),
+          child: SizedBox(child: ProfileSettings(profileBloc: profileBloc)),
         )
       ],
     ));
