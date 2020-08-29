@@ -73,12 +73,12 @@ class ProfileBloc extends Bloc<_Event, ProfileState> {
   }
 
   Future<ProfileState> handleUpdateEmail(String name, String newEmail) async {
-    final userDetails = await userRepository.updateUserEmail(authManager.currentAccount.id, name, newEmail);
+    final userDetails = await userRepository.updateUserEmail(authManager.currentAccount.id, newEmail);
     return new ProfileState(user: userDetails);
   }
 
   Future<ProfileState> handleUpdateName(String newName, String email) async {
-    final userDetails = await userRepository.updateUsersName(authManager.currentAccount.id, newName, email);
+    final userDetails = await userRepository.updateUsersName(authManager.currentAccount.id, newName);
     return new ProfileState(user: userDetails);
   }
 }

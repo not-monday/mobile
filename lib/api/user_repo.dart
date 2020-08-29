@@ -8,8 +8,8 @@ import 'package:stronk/domain/model/user.dart';
 
 abstract class UserRepository {
   Future<User> retrieveUser();
-  Future<User> updateUserEmail(String id, String name, String newEmail);
-  Future<User> updateUsersName(String id, String newName, String email);
+  Future<User> updateUserEmail(String id, String newEmail);
+  Future<User> updateUsersName(String id, String newName);
 }
 
 class UserRepositoryImpl implements UserRepository {
@@ -29,27 +29,23 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<User> updateUserEmail(String id, String name, String newEmail) async {
+  Future<User> updateUserEmail(String id, String newEmail) async {
     final MutationOptions mutationOptions = MutationOptions(documentNode: gql(UserDocument.updateUserEmail(id, newEmail)));
     final QueryResult queryResult = await utility.client.mutate(mutationOptions);
     if (queryResult.hasException) {
-      log("Error fetching profile details ${queryResult.exception}");
+      log("Error updating user email ${queryResult.exception}");
     }
-    return User(
-        name: name,
-        email: queryResult.data['updateUser']['user']['email']);
+    return queryResult.data['updateUser']['user'];
   }
 
   @override
-  Future<User> updateUsersName(String id, String newName, String email) async {
+  Future<User> updateUsersName(String id, String newName) async {
     final MutationOptions mutationOptions = MutationOptions(documentNode: gql(UserDocument.updateUsersName(id, newName)));
     final QueryResult queryResult = await utility.client.mutate(mutationOptions);
     if (queryResult.hasException) {
-      log("Error fetching profile details ${queryResult.exception}");
+      log("Error updating user\'s name ${queryResult.exception}");
     }
-    return User(
-        name: queryResult.data['updateUser']['user']['name'],
-        email: email);
+    return queryResult.data['updateUser']['user'];
   }
 
 }

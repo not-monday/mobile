@@ -34,11 +34,11 @@ class ProfileCard extends StatelessWidget {
     return PopUpMenu.createPopup([
       new PopUpMenu(option: "Edit email",
           onTap: () => {
-            profileBloc.add(new UpdateEmailInfoEvent(name: profileState.user.name, newEmail: "new" + profileState.user.email))
+            profileBloc.add(new UpdateEmailInfoEvent(name: profileState.user.name, newEmail: "mock_email@mock.mock"))
           }),
       new PopUpMenu(option: "Edit name",
         onTap: () => {
-          profileBloc.add(new UpdateNameEvent(newName: "new" + profileState.user.name, email: profileState.user.email))
+          profileBloc.add(new UpdateNameEvent(newName: "mock_name", email: profileState.user.email))
         }
       )
     ]);
