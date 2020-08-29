@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:stronk/presentation/discover/discover_page.dart';
 import 'package:stronk/presentation/profile/UpdateUserDetailsPage.dart';
 import 'package:stronk/presentation/profile/profile_bloc.dart';
 
