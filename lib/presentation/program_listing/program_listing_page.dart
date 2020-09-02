@@ -24,14 +24,56 @@ class ProgramListingPage extends StatelessWidget {
   }
 
   Widget _buildPage(BuildContext context, ProgramListingState state) {
-    return Scaffold(
-        body: Column(
-      children: [_buildHeader(context, state)],
-    ));
+    return DefaultTabController(
+      length: 2,
+      child: CustomScrollView(
+        slivers: <Widget>[
+          _buildHeader(context, state),
+          SliverFillRemaining(
+            child: TabBarView(
+              children: <Widget>[
+                _buildDescription(context, state),
+                _buildReviews(context, state),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   Widget _buildHeader(BuildContext context, ProgramListingState state) {
-    final text = (state.program != null) ? state.program.name : program.name;
-    return Text(text);
+    final programName = (state.program != null) ? state.program.name : program.name;
+    final description = (state.program != null) ? state.program.description : program.description;
+
+    return SliverAppBar(
+      pinned: true,
+      expandedHeight: 200.0,
+      backgroundColor: Colors.red[300],
+      title: Text(programName),
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          child: Column(
+            children: <Widget>[
+              Text(programName),
+              Text(description),
+              Text("author")],
+          ),
+          margin: EdgeInsets.only(top: 100),
+        ),
+      ),
+      bottom: TabBar(tabs: [
+        Tab(icon: Text("Info")),
+        Tab(icon: Text("Reviews")),
+      ]),
+    );
+  }
+
+  Widget _buildDescription(BuildContext context, ProgramListingState state) {
+    return Container(child: Text("description"), height: 1000, color: Colors.black12);
+  }
+
+  Widget _buildReviews(BuildContext context, ProgramListingState state) {
+    return Container(child: Text("description"), height: 1000, color: Colors.black12);
   }
 }
