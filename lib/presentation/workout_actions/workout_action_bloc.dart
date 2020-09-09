@@ -128,10 +128,13 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
 
     final editedProgram = new Program(
         name: newName,
+        parentId: state.programRef.parentId,
+        id: state.programRef.id,
+        author : state.programRef.author,
         workouts: state.programRef.workouts,
         description: state.programRef.description,
         duration: state.programRef.duration,
-        id: state.programRef.id);
+       );
     return WorkoutActionState(programRef: editedProgram, workoutRef: editedProgram.workouts);
   }
 
@@ -171,11 +174,14 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
     workouts.insert(indexOfTargetWorkout, editedWorkout);
 
     final updatedProgram = new Program(
+      id: state.programRef.id,
+      parentId : state.programRef.parentId,
+      author : state.programRef.author,
       name: state.programRef.name,
       workouts: workouts,
       description: state.programRef.description,
       duration: state.programRef.duration,
-      id: state.programRef.id);
+      );
 
     return WorkoutActionState(programRef: updatedProgram, workoutRef: updatedProgram.workouts);
   }
@@ -221,11 +227,14 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
     }
     workouts.insert(indexOfEditWorkout, editWorkout);
     final updatedProgram = new Program(
+      id: state.programRef.id,
+      parentId: state.programRef.parentId,
+      author: state.programRef.author,
       name: state.programRef.name,
       workouts: workouts,
       description: state.programRef.description,
       duration: state.programRef.duration,
-      id: state.programRef.id);
+      );
     return WorkoutActionState(programRef: updatedProgram, workoutRef: workouts);
   }
 
@@ -295,11 +304,14 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
     workouts.insert(indexOfEditWorkout, editWorkout);
 
     editProgram = new Program(
+      id: programRef.id,
+      parentId: programRef.parentId,
+      author: programRef.author,
       name: programRef.name,
       workouts: workouts,
       description: programRef.description,
       duration: programRef.duration,
-      id: programRef.id);
+      );
     return WorkoutActionState(programRef: editProgram, workoutRef: workouts);
   }
 
@@ -321,11 +333,14 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
         }
     }
     final updatedProgram = new Program(
+      id: state.programRef.id,
+      parentId: state.programRef.parentId,
+      author: state.programRef.author,
       name: state.programRef.name,
       workouts: workouts,
       description: state.programRef.description,
       duration: state.programRef.duration,
-      id: state.programRef.id);
+      );
     return WorkoutActionState(programRef: updatedProgram, workoutRef: workouts);
   }
 }
