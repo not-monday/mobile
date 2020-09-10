@@ -21,18 +21,39 @@ class WorkoutDocument {
     }
   """;
 
-  static String getQueryProgram(String id) => """
+  static String queryProgram(String username) => """
    query {
-      user(id : "$id") {
-         currentProgram {
-            id, description
-            workouts {
-               id, description, projectedTime
-            }
+      user(username : "$username") {
+         ... on User {
+             currentProgram {
+                  id, description
+                  workouts {
+                  id, description, projectedTime
+                  }
+             } 
          }
       } 
    }
    """;
+
+  static String createProgram(String programName, int duration, String description) => """ 
+     mutation CreateProgram { 
+         createProgram (
+           name: "$programName",
+           duration: $duration,
+           desc: "$description" 
+         ) 
+         {
+             program {
+                 id, parentId, 
+                 author {
+                    name
+                 }, 
+                 name, duration, description
+             }
+         }
+     }
+  """;
 }
 
 @JsonSerializable()

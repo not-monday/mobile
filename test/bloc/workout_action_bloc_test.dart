@@ -1,11 +1,11 @@
 import 'package:mockito/mockito.dart';
 import 'package:stronk/api/graphql.dart';
+import 'package:stronk/api/graphql/workoutDocument.dart';
 import 'package:stronk/api/workout_repo.dart';
 import 'package:stronk/auth_manager.dart';
 import 'package:stronk/domain/constants.dart' as Constants;
 import 'package:stronk/domain/model/workout.dart';
 import 'package:stronk/presentation/workout_actions/param_container.dart';
-import 'package:stronk/presentation/workout_actions/workoutDocument.dart';
 import 'package:stronk/presentation/workout_actions/workout_action_bloc.dart';
 import 'package:test/test.dart';
 

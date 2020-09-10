@@ -24,6 +24,13 @@ class WorkoutActionPage extends StatelessWidget {
     final editWorkoutBloc = BlocProvider.of<WorkoutActionBloc>(context);
     return Scaffold(
       body: _renderWorkouts(editWorkoutBloc, editWorkoutState),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => {
+          editWorkoutBloc.add(new CreateProgramEvent(programName: "Test", description: "Test description", duration: 20))
+        },
+        tooltip: 'Create Program',
+        child: Icon(Icons.add),
+      ),
     );
   }
 
@@ -35,7 +42,11 @@ class WorkoutActionPage extends StatelessWidget {
       );
     } else if (editWorkoutState.programRef.workouts == []) {
       return Container(
-        child: Text("No programs?"),
+        //TODO dialog to ask if they'd like to add workouts to their existing
+        // program
+        child: Text("Author : ${editWorkoutState.programRef.author} \n"
+            "program name: ${editWorkoutState.programRef.name}\n"
+            "description : ${editWorkoutState.programRef.description}"  ),
       );
     }
     final programRef = editWorkoutState.programRef;
