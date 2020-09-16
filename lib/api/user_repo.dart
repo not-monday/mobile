@@ -35,7 +35,8 @@ class UserRepositoryImpl implements UserRepository {
     if (queryResult.hasException) {
       log("Error updating user email ${queryResult.exception}");
     }
-    return queryResult.data['updateUser']['user'];
+    final userDetails = queryResult.data['updateUser']['user'];
+    return new User(name : userDetails["name"], email : userDetails["email"]);
   }
 
   @override
@@ -45,7 +46,8 @@ class UserRepositoryImpl implements UserRepository {
     if (queryResult.hasException) {
       log("Error updating user\'s name ${queryResult.exception}");
     }
-    return queryResult.data['updateUser']['user'];
+    final userDetails = queryResult.data['updateUser']['user'];
+    return new User(name : userDetails["name"], email: userDetails["email"]);
   }
 
 }

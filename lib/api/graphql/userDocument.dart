@@ -5,30 +5,35 @@ import 'package:stronk/domain/model/user.dart';
 part 'userDocument.g.dart';
 
 class UserDocument {
-  static String queryUser(String id) => """
+  static String queryUser(String username) => """
     query user {
-       user(id : "$id") {
-         name
-         id
-         email
+       user(username : "$username") {
+         username
+         ... on User {
+                name 
+                id
+                email
+             }
        } 
     }
 """;
 
-  static String updateUsersName(String id, String name) => """
+  static String updateUsersName(String username, String name) => """
     mutation {
-      updateUser(id : "$id", name : "$name") {
+      updateUser(username : "$username", name : "$name") {
         user {
           name
+          email
         }
       }
     }
   """ ;
 
-  static String updateUserEmail(String id, String email) => """
+  static String updateUserEmail(String username, String email) => """
     mutation {
-      updateUser(id : "$id", name : "$email") {
+      updateUser(username : "$username", email : "$email") {
         user {
+          name
           email
         }
       }
