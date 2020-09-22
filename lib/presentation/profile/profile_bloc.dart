@@ -66,19 +66,19 @@ class ProfileBloc extends Bloc<_Event, ProfileState> {
 
   Future<ProfileState> handleInit() async {
     final userDetails = await graphQLUtility.makePageRequest<UserPageModel>(
-        UserDocument.queryUser(authManager.currentAccount.id),
+        UserDocument.queryUser(authManager.currentAccount.username),
             (json) => UserPageModel.fromJson(json)
     );
     return new ProfileState(user: userDetails.user);
   }
 
   Future<ProfileState> handleUpdateEmail(String name, String newEmail) async {
-    final userDetails = await userRepository.updateUserEmail(authManager.currentAccount.id, newEmail);
+    final userDetails = await userRepository.updateUserEmail(authManager.currentAccount.username, newEmail);
     return new ProfileState(user: userDetails);
   }
 
   Future<ProfileState> handleUpdateName(String newName, String email) async {
-    final userDetails = await userRepository.updateUsersName(authManager.currentAccount.id, newName);
+    final userDetails = await userRepository.updateUsersName(authManager.currentAccount.username, newName);
     return new ProfileState(user: userDetails);
   }
 }

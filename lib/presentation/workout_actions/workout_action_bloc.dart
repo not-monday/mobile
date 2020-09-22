@@ -5,11 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:stronk/api/graphql.dart';
+import 'package:stronk/api/graphql/workoutDocument.dart';
 import 'package:stronk/api/workout_repo.dart';
 import 'package:stronk/auth_manager.dart';
 import 'package:stronk/domain/constants.dart' as Constants;
 import 'package:stronk/domain/model/workout.dart';
-import 'package:stronk/presentation/workout_actions/workoutDocument.dart';
 
 import 'param_container.dart';
 
@@ -30,6 +30,14 @@ class WorkoutActionState {
 abstract class _Event {}
 
 class InitEvent implements _Event {}
+
+class CreateProgramEvent implements _Event {
+  String programName;
+  int duration;
+  String description;
+
+  CreateProgramEvent({this.programName, this.duration, this.description});
+}
 
 class WorkoutEvent implements _Event {
   String workoutId;
@@ -100,6 +108,8 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
         newState = await handleWorkoutExercisesEvent(event.workoutId, event.workoutExerciseId, event.action);
       } else if (event is WorkoutEvent) {
         newState = await handleWorkoutEvent(event.workoutId, event.action);
+      } else if(event is CreateProgramEvent) {
+        newState = await handleCreateProgramEvent(event.programName, event.duration, event.description);
       }
     } catch (error) {
       print(error);
@@ -114,12 +124,22 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
 
   Future<WorkoutActionState> handleInit() async {
     final activeWorkout = await graphQLUtility.makePageRequest<WorkoutPageModel>(
-        WorkoutDocument.getQueryProgram(authManager.currentAccount.id),
+        WorkoutDocument.queryProgram(authManager.currentAccount.username),
             (json) => WorkoutPageModel.fromJson(json)
     );
 
+    if (activeWorkout.program == null) {
+      return WorkoutActionState(programRef : null, workoutRef : null);
+    }
+
     return WorkoutActionState(programRef : activeWorkout.program, workoutRef: activeWorkout.program.workouts);
   }
+
+  Future<WorkoutActionState> handleCreateProgramEvent(String programName, int duration, String description) async {
+    final createdProgram = await workoutRepo.createProgram(programName, duration, description);
+    return WorkoutActionState(programRef : createdProgram, workoutRef : createdProgram.workouts);
+  }
+
 
   Future<WorkoutActionState> handleEditProgramName(String newName) async {
     if (state.programRef == null) {
@@ -128,10 +148,13 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
 
     final editedProgram = new Program(
         name: newName,
+        parentId: state.programRef.parentId,
+        id: state.programRef.id,
+        author : state.programRef.author,
         workouts: state.programRef.workouts,
         description: state.programRef.description,
         duration: state.programRef.duration,
-        id: state.programRef.id);
+       );
     return WorkoutActionState(programRef: editedProgram, workoutRef: editedProgram.workouts);
   }
 
@@ -171,11 +194,14 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
     workouts.insert(indexOfTargetWorkout, editedWorkout);
 
     final updatedProgram = new Program(
+      id: state.programRef.id,
+      parentId : state.programRef.parentId,
+      author : state.programRef.author,
       name: state.programRef.name,
       workouts: workouts,
       description: state.programRef.description,
       duration: state.programRef.duration,
-      id: state.programRef.id);
+      );
 
     return WorkoutActionState(programRef: updatedProgram, workoutRef: updatedProgram.workouts);
   }
@@ -221,11 +247,14 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
     }
     workouts.insert(indexOfEditWorkout, editWorkout);
     final updatedProgram = new Program(
+      id: state.programRef.id,
+      parentId: state.programRef.parentId,
+      author: state.programRef.author,
       name: state.programRef.name,
       workouts: workouts,
       description: state.programRef.description,
       duration: state.programRef.duration,
-      id: state.programRef.id);
+      );
     return WorkoutActionState(programRef: updatedProgram, workoutRef: workouts);
   }
 
@@ -295,11 +324,14 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
     workouts.insert(indexOfEditWorkout, editWorkout);
 
     editProgram = new Program(
+      id: programRef.id,
+      parentId: programRef.parentId,
+      author: programRef.author,
       name: programRef.name,
       workouts: workouts,
       description: programRef.description,
       duration: programRef.duration,
-      id: programRef.id);
+      );
     return WorkoutActionState(programRef: editProgram, workoutRef: workouts);
   }
 
@@ -321,11 +353,14 @@ class WorkoutActionBloc extends Bloc<_Event, WorkoutActionState> {
         }
     }
     final updatedProgram = new Program(
+      id: state.programRef.id,
+      parentId: state.programRef.parentId,
+      author: state.programRef.author,
       name: state.programRef.name,
       workouts: workouts,
       description: state.programRef.description,
       duration: state.programRef.duration,
-      id: state.programRef.id);
+      );
     return WorkoutActionState(programRef: updatedProgram, workoutRef: workouts);
   }
 }

@@ -100,6 +100,8 @@ class Exercise {
 @JsonSerializable()
 class Program {
   final String id;
+  final String parentId;
+  final String author;
   final String name;
   final int duration;
   final String description;
@@ -108,6 +110,8 @@ class Program {
 
   Program({
     @required this.id,
+    @required this.parentId,
+    @required this.author,
     @required this.name,
     @required this.duration,
     @required this.description,
